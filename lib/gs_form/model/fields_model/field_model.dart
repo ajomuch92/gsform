@@ -22,6 +22,23 @@ abstract class GSFieldModel {
   bool? enableReadOnly;
   VoidCallback? onTap;
 
+  /// Extra validation run after `required`/`validateRegEx` pass. Return an error message, or `null` if valid.
+  String? Function(dynamic value)? validator;
+
+  /// Called when the user changes the value.
+  ValueChanged<dynamic>? onChanged;
+
+  /// Message returned by [validator] on the last validation.
+  String? validatorMessage;
+
+  /// Internal: set by `GSField` to hear value changes.
+  ValueChanged<dynamic>? changeListener;
+
+  void notifyChanged(dynamic value) {
+    onChanged?.call(value);
+    changeListener?.call(value);
+  }
+
   GSFieldModel({
     this.type,
     required this.tag,
