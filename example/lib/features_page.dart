@@ -38,13 +38,19 @@ class _FeaturesPageState extends State<FeaturesPage> {
                 GSField.text(
                   tag: 'name',
                   title: 'Name',
+                  // Pretend server check, run by isValidAsync().
+                  asyncValidator: (v) async {
+                    await Future<void>.delayed(const Duration(milliseconds: 600));
+                    return v == 'admin' ? 'That name is taken' : null;
+                  },
                   validator: (v) => (v as String).trim().length < 3 ? 'At least 3 letters' : null,
                 ),
-                GSField.password(tag: 'pass', title: 'Password', weight: 6),
+                GSField.password(tag: 'pass', title: 'Password', weight: 6, compactWeight: 12),
                 GSField.password(
                   tag: 'confirm',
                   title: 'Confirm',
                   weight: 6,
+                  compactWeight: 12,
                   validator: (v) => v == controller.getValue('pass') ? null : 'Passwords differ',
                 ),
                 GSField.masked(
@@ -86,6 +92,13 @@ class _FeaturesPageState extends State<FeaturesPage> {
                     ],
                   ),
                 ),
+                GSField.toggle(tag: 'business', hint: 'This is a business account'),
+                GSField.text(
+                  tag: 'company',
+                  title: 'Company name',
+                  required: true,
+                  visibleWhen: (values) => values['business'] == true,
+                ),
                 GSField.toggle(tag: 'terms', hint: 'I accept the terms', required: true),
               ],
             ),
@@ -95,8 +108,9 @@ class _FeaturesPageState extends State<FeaturesPage> {
               spacing: 8,
               children: [
                 FilledButton(
-                  onPressed: () {
-                    final valid = controller.isValid();
+                  onPressed: () async {
+                    final valid = await controller.isValidAsync();
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(valid ? controller.values.toString() : 'Fix the highlighted fields')),
                     );

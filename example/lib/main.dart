@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gsform_plus/gsform_plus.dart';
 
 import 'features_page.dart';
+import 'wizard_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -65,6 +66,10 @@ class MainTestPage extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FeaturesPage())),
                   child: const Text('New features'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WizardPage())),
+                  child: const Text('Wizard'),
                 ),
               ],
             ),
