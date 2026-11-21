@@ -40,6 +40,6 @@ abstract class GSFieldModel {
     this.onTap,
     GSFieldStatusEnum? status,
     bool? enableReadOnly,
-  })  : status = status ?? GSFieldStatusEnum.normal,
-        enableReadOnly = enableReadOnly ?? false;
+  }) : status = status ?? GSFieldStatusEnum.normal,
+       enableReadOnly = enableReadOnly ?? false;
 }

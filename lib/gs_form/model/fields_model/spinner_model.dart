@@ -8,37 +8,23 @@ class GSSpinnerModel extends GSFieldModel {
   String? hint;
   ValueChanged<SpinnerDataModel?>? onChange;
 
-  GSSpinnerModel(
-      {type,
-      tag,
-      title,
-      errorMessage,
-      helpMessage,
-      prefixWidget,
-      postfixWidget,
-      required,
-      status,
-      value,
-      validateRegEx,
-      weight,
-      onTap,
-      showTitle,
-      required this.items,
-      this.onChange,
-      this.hint})
-      : super(
-          type: type,
-          tag: tag,
-          title: title,
-          errorMessage: errorMessage,
-          helpMessage: helpMessage,
-          prefixWidget: prefixWidget,
-          postfixWidget: postfixWidget,
-          required: required,
-          status: status,
-          value: value,
-          validateRegEx: validateRegEx,
-          weight: weight,
-          showTitle: showTitle,
-        );
+  GSSpinnerModel({
+    super.type,
+    required super.tag,
+    super.title,
+    super.errorMessage,
+    super.helpMessage,
+    super.prefixWidget,
+    super.postfixWidget,
+    super.required,
+    super.status,
+    super.value,
+    super.validateRegEx,
+    super.weight,
+    dynamic onTap,
+    super.showTitle,
+    required this.items,
+    this.onChange,
+    this.hint,
+  });
 }
