@@ -34,6 +34,10 @@ See real examples:
 >   	* [Controller](#controller)
 >   	* [Validation](#validation)
 >   	* [Reacting to changes](#reacting-to-changes)
+>   	* [Conditional fields](#conditional-fields)
+>   	* [Async validation](#async-validation)
+>   	* [Multi-step forms](#multi-step-forms)
+>   	* [Responsive layout](#responsive-layout)
 >   	* [Theming and translations](#theming-and-translations)
 >   	* [More fields](#more-fields)
 >   * [Theme](#theme)
@@ -183,6 +187,68 @@ GSForm.singleSection(
 
 `onChanged` fires on user edits, not on `controller.setValue`.
 
+### Conditional fields
+
+`visibleWhen` receives the current values (by tag) and decides whether the field is part of the form:
+
+```dart
+GSField.toggle(tag: 'business', hint: 'Business account'),
+GSField.text(
+  tag: 'company',
+  title: 'Company name',
+  required: true,
+  visibleWhen: (values) => values['business'] == true,
+),
+```
+
+Hidden fields are not validated, are left out of `onSubmit()` / `controller.values`, and start again from their
+initial value when shown.
+
+### Async validation
+
+For checks that need a server, add an `asyncValidator`. It runs after the sync checks pass, when you call
+`isValidAsync()` (on the form or the controller) and on the stepper buttons; a small spinner shows while it runs.
+
+```dart
+GSField.text(
+  tag: 'username',
+  asyncValidator: (value) async => await api.isTaken(value) ? 'Username taken' : null,
+)
+
+if (await controller.isValidAsync()) save(controller.values);
+```
+
+`isValid()` stays synchronous and ignores async validators.
+
+### Multi-step forms
+
+`GSForm.stepper` shows one section per step with Back/Next buttons and a progress bar. Next validates only the
+current step; steps keep their values while hidden; the last step calls `onComplete` with every value.
+
+```dart
+GSForm.stepper(
+  context,
+  onComplete: (values) => save(values),
+  onStepChanged: (step) => debugPrint('step $step'),
+  sections: [
+    GSSection(sectionTitle: 'Account', fields: [GSField.email(tag: 'email', required: true)]),
+    GSSection(sectionTitle: 'Profile', fields: [GSField.text(tag: 'name')]),
+  ],
+)
+```
+
+Button texts come from `GSFormStyle.labels` (`next`, `back`, `submit`).
+
+### Responsive layout
+
+Each row holds up to 12 weight units; a field that does not fit starts a new row. Use `compactWeight` for narrow
+layouts (sections under `GSFormStyle.compactBreakpoint`, 600 by default):
+
+```dart
+GSField.text(tag: 'first', weight: 6, compactWeight: 12), // side by side on tablets, stacked on phones
+GSField.text(tag: 'last', weight: 6, compactWeight: 12),
+```
+
 ### Theming and translations
 
 Register a style once for the whole app, or derive one from your `ThemeData`:
@@ -237,7 +303,8 @@ GSFormStyle(
 	requiredText: '(required)',
 	errorColor: COLOR,
 	successColor: COLOR,
-	labels: GSFormLabels.es, // built-in texts: From/To, Camera/Gallery, QR scanner title
+	labels: GSFormLabels.es, // built-in texts: From/To, Camera/Gallery, QR scanner title, Next/Back/Submit
+	compactBreakpoint: 600, // below this section width, fields use compactWeight
 )
 
 // Or derive everything from your app theme:
@@ -725,9 +792,30 @@ features of each field will be explained in detail below.
     <td><code> false </code></td>
     <td>called with the new value when the user changes the field</td>
   </tr>
+  <tr>
+    <td>asyncValidator</td>
+    <td><code> Future&lt;String?&gt; Function(dynamic value) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>async check (e.g. against a server) run by <code>isValidAsync()</code> and the stepper after the sync checks pass</td>
+  </tr>
+  <tr>
+    <td>visibleWhen</td>
+    <td><code> bool Function(Map&lt;String, dynamic&gt; values) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>the field is only part of the form while this returns true; hidden fields are not validated or submitted</td>
+  </tr>
+  <tr>
+    <td>compactWeight</td>
+    <td><code> int </code></td>
+    <td> 1 - 12 </td>
+    <td><code> false </code></td>
+    <td>weight used when the section is narrower than <code>GSFormStyle.compactBreakpoint</code></td>
+  </tr>
 </table>
 
-Form-level options (on <code>GSForm.singleSection</code> / <code>GSForm.multiSection</code>):
+Form-level options (on <code>GSForm.singleSection</code> / <code>GSForm.multiSection</code> / <code>GSForm.stepper</code>):
 
 <table>
   <tr>
@@ -764,6 +852,20 @@ Form-level options (on <code>GSForm.singleSection</code> / <code>GSForm.multiSec
     <td> - </td>
     <td><code> false </code></td>
     <td>overrides the theme extension and the built-in light/dark styles</td>
+  </tr>
+  <tr>
+    <td>onComplete</td>
+    <td><code> ValueChanged&lt;Map&lt;String, dynamic&gt;&gt; </code></td>
+    <td> - </td>
+    <td><code> stepper only, true </code></td>
+    <td>called with every value when the last step is submitted and valid</td>
+  </tr>
+  <tr>
+    <td>onStepChanged</td>
+    <td><code> ValueChanged&lt;int&gt; </code></td>
+    <td> - </td>
+    <td><code> stepper only, false </code></td>
+    <td>called with the new step index</td>
   </tr>
 </table>
 

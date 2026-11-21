@@ -10,6 +10,11 @@
 * New fields: `GSField.masked`, `GSField.pinCode`, `GSField.toggle`, `GSField.slider` (single and range), `GSField.autocomplete` and `GSField.custom`.
 * `GSFormStyle` is a `ThemeExtension` (register it in `ThemeData.extensions`), plus `GSFormStyle.fromTheme(theme)`, `errorColor`, `successColor` and translatable `labels` (`GSFormLabels`, `GSFormLabels.es`).
 * `GSMaskFormatter` exported.
+* `visibleWhen` on every field: conditional fields that are skipped by validation and submission while hidden.
+* `GSForm.stepper`: multi-step forms with per-step validation, `onComplete` and `onStepChanged`.
+* `asyncValidator` on every field, with `isValidAsync()` on `GSForm` and `GSFormController`; a spinner shows while it runs.
+* `compactWeight` on every field and `GSFormStyle.compactBreakpoint` for phone/tablet layouts.
+* `GSFormLabels` gained `next`, `back` and `submit`.
 * Web support for the image fields: they used `dart:io` and failed at runtime on web; pub.dev should now list web.
 
 ### Changed
@@ -19,6 +24,9 @@
 * `GSFieldCallBack` gained `setValue` and `reset`; custom implementations must add them.
 * The date range picker defaults its labels to `GSFormStyle.labels` instead of hard-coded `From` / `To`.
 * The bank card field uses `GSMaskFormatter`; `CardNumberFormatter` was removed.
+* Row layout: a field whose weight doesn't fit in the current row now starts a new row (weights 6 + 12 used to share one row).
+* `GSForm` keeps an internal controller when none is passed. A controller notifies its listeners once after fields mount or unmount.
+* `GSField.value` returns `null` and `validate()` returns `true` for fields that are not built.
 
 ### Fixed
 
@@ -26,6 +34,8 @@
 * Pre-selected checklist items were missing from the value.
 * Validating a disabled field re-enabled it; disabled fields now count as valid.
 * The price field lost its text on parent rebuild when it had an initial value.
+* A plain widget placed right after a field in a section crashed the layout.
+* Fields moved to another row (by `compactWeight` or `visibleWhen`) kept no state; they now keep what the user typed.
 
 ## 1.0.0
 
