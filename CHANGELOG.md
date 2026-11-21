@@ -1,3 +1,40 @@
+## 1.0.0
+
+First release as **gsform_plus**, a maintained continuation of [gsform](https://pub.dev/packages/gsform) 0.3.7.
+
+### Breaking
+
+* Package renamed to `gsform_plus`. Import `package:gsform_plus/gsform_plus.dart`.
+* Requires Flutter 3.32 / Dart 3.8.
+* Removed the Jalali calendar and `persian_datetime_picker`. `calendarType` is gone; dates use Material pickers and the app locale.
+* Removed `image_cropper` and the `showCropper` option.
+* Replaced the discontinued `qr_code_scanner` with `mobile_scanner`.
+* `cameraPopupIcon` / `galleryPopupIcon` are now `Widget?` instead of SVG asset paths.
+* `GSField.imagePicker(maximumSizePerImageInBytes:)` renamed to `maximumSizePerImageInKB`.
+* Removed direct dependencies `intl`, `flutter_svg`, `figma_squircle_updated` and the unused `path_provider`.
+
+### Fixed
+
+* `validateRegEx` was accepted by every field but never applied.
+* `availableFrom` on date and date-range pickers was overwritten by `availableTo`.
+* Price field crashed when the text was cleared or a non-digit was typed; thousands separator no longer depends on locale (getValue returned wrong numbers in locales that use `.`).
+* Email field reset the typed text on every rebuild; email regex now accepts hyphenated domains and subdomains and rejects trailing garbage.
+* Time field crashed when an empty field was rebuilt.
+* Date range field lost the selection on rebuild and returned the same text for start and end.
+* Date fields showed a pre-set date with the hint style, and cancelling the picker restyled the chosen date as hint.
+* Past-blocked date pickers could not go back to earlier future dates after a pick.
+* Required spinner with a hint always passed validation; picking an item left several items marked selected.
+* Image cropper results were discarded (the original file was kept); multi-image size check was inverted.
+* Multi-image and QR fields lost their values on parent rebuild.
+* QR scanner popped once per detected frame, closing the form screen too.
+* `GSField` crashed when used outside a `GSSection`; `GSForm.isValid()` crashed before fields were built.
+* Image picker crashed with a null `title`; hard-coded Persian labels removed.
+
+### Other
+
+* Removed the generated `doc/` folder that was declared as package assets (≈11 MB shipped into every app).
+* Added tests and enabled `flutter_lints`.
+
 ## 0.0.1
 
 * initial GSForm .
