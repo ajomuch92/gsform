@@ -1,3 +1,32 @@
+## 1.1.0
+
+### Added
+
+* `GSFormController`: `values`, `getValue`, `setValue`, `setValues`, `reset`, `isValid`, `setEnabled`, `initialValues`, and change notifications.
+* `validator` on every field: return an error message to show, or `null`. Works for cross-field checks via the controller.
+* `onChanged` on every field and on `GSForm` (`(tag, value)`).
+* `autovalidateMode` on `GSForm`. Fields showing an error are re-validated as the user edits them.
+* `isValid()` scrolls to the first invalid field and focuses it (`revealError: false` to opt out).
+* New fields: `GSField.masked`, `GSField.pinCode`, `GSField.toggle`, `GSField.slider` (single and range), `GSField.autocomplete` and `GSField.custom`.
+* `GSFormStyle` is a `ThemeExtension` (register it in `ThemeData.extensions`), plus `GSFormStyle.fromTheme(theme)`, `errorColor`, `successColor` and translatable `labels` (`GSFormLabels`, `GSFormLabels.es`).
+* `GSMaskFormatter` exported.
+* Web support for the image fields: they used `dart:io` and failed at runtime on web; pub.dev should now list web.
+
+### Changed
+
+* Default text sizes raised to readable values (error/help text was 7px). Fields are a bit taller.
+* Field title is exposed to screen readers; error messages are announced.
+* `GSFieldCallBack` gained `setValue` and `reset`; custom implementations must add them.
+* The date range picker defaults its labels to `GSFormStyle.labels` instead of hard-coded `From` / `To`.
+* The bank card field uses `GSMaskFormatter`; `CardNumberFormatter` was removed.
+
+### Fixed
+
+* The spinner ignored its `value` parameter.
+* Pre-selected checklist items were missing from the value.
+* Validating a disabled field re-enabled it; disabled fields now count as valid.
+* The price field lost its text on parent rebuild when it had an initial value.
+
 ## 1.0.0
 
 First release as **gsform_plus**, a maintained continuation of [gsform](https://pub.dev/packages/gsform) 0.3.7.
