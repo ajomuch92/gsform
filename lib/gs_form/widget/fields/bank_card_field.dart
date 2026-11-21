@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/model/fields_model/bank_card_filed_model.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/bank_card_filed_model.dart';
 
 import '../../core/field_callback.dart';
 import '../../core/form_style.dart';
@@ -11,7 +11,7 @@ class GSBankCardField extends StatefulWidget implements GSFieldCallBack {
   final GSFormStyle formStyle;
   TextEditingController? controller;
 
-  GSBankCardField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSBankCardField(this.model, this.formStyle, {super.key});
 
   @override
   State<GSBankCardField> createState() => _GSBankCardFieldState();

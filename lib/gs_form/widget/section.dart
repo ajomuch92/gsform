@@ -1,9 +1,8 @@
-import 'package:figma_squircle_updated/figma_squircle.dart';
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/values/theme.dart';
-import 'package:gsform/gs_form/widget/field.dart';
-import 'package:gsform/gs_form/widget/fields/text_plain_field.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/values/theme.dart';
+import 'package:gsform_plus/gs_form/widget/field.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_plain_field.dart';
 
 // ignore: must_be_immutable
 class GSSection extends StatelessWidget {
@@ -11,7 +10,7 @@ class GSSection extends StatelessWidget {
   GSFormStyle? style;
   String? sectionTitle;
 
-  GSSection({Key? key, required this.fields, this.style, required this.sectionTitle}) : super(key: key);
+  GSSection({super.key, required this.fields, this.style, required this.sectionTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +26,7 @@ class GSSection extends StatelessWidget {
         List<Widget> childrenAtRow = []; // children in each row
         while (weightSum < 12 && i <= fields.length - 1) {
           GSField field = fields[i] as GSField;
-          childrenAtRow.add(
-            Expanded(
-              flex: field.model?.weight ?? 12,
-              child: field,
-            ),
-          );
+          childrenAtRow.add(Expanded(flex: field.model?.weight ?? 12, child: field));
 
           weightSum += field.model?.weight ?? 12;
           if (i < fields.length - 1 && fields[i + 1] is GSField && fields[i + 1] is! GSTextPlainField) {
@@ -43,24 +37,13 @@ class GSSection extends StatelessWidget {
 
           // این شرط برای فاصله انداختن بین ویجت هاست به طوری روی اولین ویجت اعمال نشود
           if (weightSum != 12) {
-            childrenAtRow.add(const SizedBox(
-              width: 12,
-            ));
+            childrenAtRow.add(const SizedBox(width: 12));
           }
         }
         rows.add(Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: childrenAtRow));
         weightSum = 0;
       } else {
-        rows.add(
-          Row(
-            children: [
-              Expanded(
-                flex: 12,
-                child: fields[i],
-              )
-            ],
-          ),
-        );
+        rows.add(Row(children: [Expanded(flex: 12, child: fields[i])]));
         i++;
       }
     }
@@ -74,10 +57,7 @@ class GSSection extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          sectionTitle!,
-                          style: style?.sectionTitleStyle ?? GSFormTheme.textThemeStyle.displayLarge,
-                        ),
+                        Text(sectionTitle!, style: style?.sectionTitleStyle ?? GSFormTheme.textThemeStyle.displayLarge),
                       ],
                     ),
                     const SizedBox(height: 6.0),
@@ -88,25 +68,22 @@ class GSSection extends StatelessWidget {
         Card(
           color: style?.backgroundSectionColor,
           elevation: style?.sectionCardElevation,
-          shape: SmoothRectangleBorder(
-            borderRadius: SmoothBorderRadius(
-              cornerRadius: style!.sectionRadius,
-              cornerSmoothing: 1,
-            ),
-          ),
+          shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(style!.sectionRadius)),
           child: Padding(
             padding: EdgeInsets.only(
-                left: style!.sectionCardPadding,
-                right: style!.sectionCardPadding,
-                top: style!.sectionCardPadding,
-                bottom: style!.sectionCardPadding),
+              left: style!.sectionCardPadding,
+              right: style!.sectionCardPadding,
+              top: style!.sectionCardPadding,
+              bottom: style!.sectionCardPadding,
+            ),
             child: ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: rows.length,
-                itemBuilder: (context, index) {
-                  return rows[index];
-                }),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: rows.length,
+              itemBuilder: (context, index) {
+                return rows[index];
+              },
+            ),
           ),
         ),
       ],

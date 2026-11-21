@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/model/data_model/radio_data_model.dart';
-import 'package:gsform/gs_form/model/fields_model/radio_model.dart';
-import 'package:gsform/gs_form/values/colors.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/model/data_model/radio_data_model.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/radio_model.dart';
+import 'package:gsform_plus/gs_form/values/colors.dart';
 
 import '../../core/field_callback.dart';
 
@@ -12,7 +12,7 @@ class GSRadioGroupField extends StatefulWidget implements GSFieldCallBack {
   final GSFormStyle? formStyle;
   TextEditingController textController = TextEditingController();
 
-  GSRadioGroupField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSRadioGroupField(this.model, this.formStyle, {super.key});
 
   RadioDataModel? returnedData;
   List<RadioDataModel> filteredItems = [];
@@ -76,12 +76,10 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
             ? Container(
                 margin: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
                 height: 44,
-                decoration: widget.model.searchBoxDecoration ??
+                decoration:
+                    widget.model.searchBoxDecoration ??
                     BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xffEAEAEA),
-                        width: 1,
-                      ),
+                      border: Border.all(color: const Color(0xffEAEAEA), width: 1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                 child: Row(
@@ -90,14 +88,16 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                       child: TextField(
                         controller: widget.textController,
                         decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.only(top: 8),
-                            hintText: widget.model.searchHint,
-                            prefixIcon: widget.model.searchIcon ?? const Icon(Icons.search),
-                            border: InputBorder.none),
+                          contentPadding: const EdgeInsets.only(top: 8),
+                          hintText: widget.model.searchHint,
+                          prefixIcon: widget.model.searchIcon ?? const Icon(Icons.search),
+                          border: InputBorder.none,
+                        ),
                         onChanged: (text) {
                           widget.keyword = text;
-                          widget.filteredItems =
-                              widget.model.items.where((i) => i.title.contains(widget.keyword) == true).toList();
+                          widget.filteredItems = widget.model.items
+                              .where((i) => i.title.contains(widget.keyword) == true)
+                              .toList();
 
                           setState(() {});
                         },
@@ -113,18 +113,13 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.close,
-                          color: GSFormColors.hintTextColor,
-                        ),
+                        child: Icon(Icons.close, color: GSFormColors.hintTextColor),
                       ),
                     ),
                   ],
                 ),
               )
-            : const SizedBox(
-                height: 0,
-              ),
+            : const SizedBox(height: 0),
         SizedBox(
           height: widget.model.height,
           child: RawScrollbar(
@@ -155,9 +150,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                       widget.returnedData = widget.filteredItems[index];
                       setState(() => {});
                     },
-                    customBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
+                    customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0, right: 4),
                       child: RadioItem(widget.filteredItems[index], widget.model, widget.formStyle!),
@@ -178,7 +171,7 @@ class RadioItem extends StatelessWidget {
   final GSFormStyle formStyle;
   final GSRadioModel _model;
 
-  const RadioItem(this._item, this._model, this.formStyle, {Key? key}) : super(key: key);
+  const RadioItem(this._item, this._model, this.formStyle, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -196,10 +189,7 @@ class RadioItem extends StatelessWidget {
                       ? Container(
                           width: 18,
                           height: 18,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.4),
-                            shape: BoxShape.circle,
-                          ),
+                          decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.4), shape: BoxShape.circle),
                         )
                       : _model.unSelectedIcon!,
                   Visibility(
@@ -208,27 +198,19 @@ class RadioItem extends StatelessWidget {
                         ? Container(
                             width: 10,
                             height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.circle,
-                            ),
+                            decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
                           )
                         : _model.selectedIcon!,
-                  )
+                  ),
                 ],
               ),
-              const SizedBox(
-                width: 8,
-              ),
+              const SizedBox(width: 8),
               Container(
                 margin: const EdgeInsetsDirectional.only(start: 8.0),
-                child: Text(
-                  _item.title,
-                  style: formStyle.fieldHintStyle,
-                ),
+                child: Text(_item.title, style: formStyle.fieldHintStyle),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

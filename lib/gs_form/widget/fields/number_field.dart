@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
 
 import '../../core/form_style.dart';
 import '../../model/fields_model/number_model.dart';
@@ -10,7 +10,7 @@ class GSNumberField extends StatefulWidget implements GSFieldCallBack {
   final GSFormStyle formStyle;
   TextEditingController? controller;
 
-  GSNumberField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSNumberField(this.model, this.formStyle, {super.key});
 
   @override
   State<GSNumberField> createState() => _GSNumberFieldState();
