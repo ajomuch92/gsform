@@ -79,9 +79,10 @@ void main() {
 
     testWidgets('notifies listeners on user edits', (tester) async {
       final controller = GSFormController();
+      await pumpForm(tester, [GSField.text(tag: 'a')], controller: controller);
+      await tester.pump(); // mounting fields also notifies once, after the frame
       var notified = 0;
       controller.addListener(() => notified++);
-      await pumpForm(tester, [GSField.text(tag: 'a')], controller: controller);
       await tester.enterText(find.byType(TextField), 'x');
       expect(notified, 1);
     });
