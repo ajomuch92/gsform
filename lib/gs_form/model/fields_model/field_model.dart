@@ -28,6 +28,19 @@ abstract class GSFieldModel {
   /// Called when the user changes the value.
   ValueChanged<dynamic>? onChanged;
 
+  /// Server-side style check (e.g. "username taken"), run by `isValidAsync()` after the sync checks pass.
+  Future<String?> Function(dynamic value)? asyncValidator;
+
+  /// When set, the field is only part of the form while this returns true for the current values (by tag).
+  /// Hidden fields are not validated or submitted, and start from their initial value when shown again.
+  bool Function(Map<String, dynamic> values)? visibleWhen;
+
+  /// Weight used when the section is narrower than `GSFormStyle.compactBreakpoint` (e.g. 12 on phones).
+  int? compactWeight;
+
+  /// True while [asyncValidator] runs.
+  bool validating = false;
+
   /// Message returned by [validator] on the last validation.
   String? validatorMessage;
 

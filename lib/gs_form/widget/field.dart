@@ -74,13 +74,20 @@ class GSField extends StatefulWidget {
     onUpdate?.call();
   }
 
-  /// Runs `required`/`validateRegEx`/[GSFieldModel.validator] and shows the result. Disabled fields are valid.
-  bool validate() => _state?.validate() ?? true;
+  /// Whether the field is currently built (false before the first build and while hidden by `visibleWhen`).
+  bool get isActive => _state?.mounted ?? false;
+
+  /// Runs `required`/`validateRegEx`/[GSFieldModel.validator] and shows the result.
+  /// Disabled and inactive fields are valid.
+  bool validate() => isActive ? _state!.validate() : true;
+
+  /// [validate], then [GSFieldModel.asyncValidator] if the sync checks passed.
+  Future<bool> validateAsync() => isActive ? _state!.validateAsync() : Future.value(true);
 
   /// Scrolls the field into view and focuses it when possible.
-  void reveal() => _state?.reveal();
+  void reveal() => isActive ? _state!.reveal() : null;
 
-  dynamic get value => _state?.value ?? (child as GSFieldCallBack?)?.getValue();
+  dynamic get value => isActive ? _state!.value : null;
 
   //<editor-fold desc="Component Constructors">
 
@@ -100,6 +107,9 @@ class GSField extends StatefulWidget {
     bool? enableReadOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSQRScannerModel(
       type: GSFieldTypeEnum.qrScanner,
@@ -117,7 +127,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.imagePicker({
@@ -143,6 +156,9 @@ class GSField extends StatefulWidget {
     VoidCallback? onErrorSizeItem,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSImagePickerModel(
       type: GSFieldTypeEnum.imagePicker,
@@ -167,7 +183,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.multiImagePicker({
@@ -194,6 +213,9 @@ class GSField extends StatefulWidget {
     VoidCallback? onErrorSizeItem,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSMultiImagePickerModel(
       type: GSFieldTypeEnum.multiImagePicker,
@@ -219,7 +241,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.spinner({
@@ -240,6 +265,9 @@ class GSField extends StatefulWidget {
     String? hint,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSSpinnerModel(
       type: GSFieldTypeEnum.spinner,
@@ -259,7 +287,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.radioGroup({
@@ -290,6 +321,9 @@ class GSField extends StatefulWidget {
     required ValueChanged<RadioDataModel> callBack,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSRadioModel(
       type: GSFieldTypeEnum.radioGroup,
@@ -318,7 +352,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.checkList({
@@ -349,6 +386,9 @@ class GSField extends StatefulWidget {
     BoxDecoration? searchBoxDecoration,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     bool isRequired = false;
     if (requiredCheckListEnum != null && requiredCheckListEnum != RequiredCheckListEnum.none) {
@@ -382,7 +422,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.text({
@@ -408,6 +451,9 @@ class GSField extends StatefulWidget {
     FocusNode? nextFocusNode,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSTextModel(
       type: GSFieldTypeEnum.text,
@@ -431,7 +477,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.password({
@@ -455,6 +504,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSPasswordModel(
       type: GSFieldTypeEnum.password,
@@ -475,7 +527,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.textPlain({
@@ -500,6 +555,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSTextPlainModel(
       type: GSFieldTypeEnum.textPlain,
@@ -524,7 +582,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.mobile({
@@ -546,6 +607,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSMobileModel(
       type: GSFieldTypeEnum.mobile,
@@ -567,7 +631,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.number({
@@ -590,6 +657,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSNumberModel(
       type: GSFieldTypeEnum.number,
@@ -612,7 +682,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.datePicker({
@@ -637,6 +710,9 @@ class GSField extends StatefulWidget {
     GSDate? availableTo,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSDatePickerModel(
       type: GSFieldTypeEnum.date,
@@ -659,7 +735,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.dateRangePicker({
@@ -687,6 +766,9 @@ class GSField extends StatefulWidget {
     GSDate? availableTo,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSDateRangePickerModel(
       type: GSFieldTypeEnum.dateRage,
@@ -712,7 +794,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.time({
@@ -733,6 +818,9 @@ class GSField extends StatefulWidget {
     TimeOfDay? initialTime,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSTimePickerModel(
       type: GSFieldTypeEnum.time,
@@ -751,7 +839,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.email({
@@ -773,6 +864,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSEmailModel(
       type: GSFieldTypeEnum.email,
@@ -794,7 +888,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.price({
@@ -816,6 +913,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSPriceModel(
       type: GSFieldTypeEnum.price,
@@ -837,7 +937,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   GSField.bankCard({
@@ -859,6 +962,9 @@ class GSField extends StatefulWidget {
     String? hint,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
   }) {
     model = GSBankCardModel(
       type: GSFieldTypeEnum.bankCard,
@@ -878,7 +984,10 @@ class GSField extends StatefulWidget {
     );
     model!
       ..validator = validator
-      ..onChanged = onChanged;
+      ..onChanged = onChanged
+      ..asyncValidator = asyncValidator
+      ..visibleWhen = visibleWhen
+      ..compactWeight = compactWeight;
   }
 
   /// One box per digit. The value is the entered `String`; `required` needs all [length] digits.
@@ -897,6 +1006,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     int length = 6,
     bool obscure = false,
     String? value,
@@ -920,7 +1032,10 @@ class GSField extends StatefulWidget {
             value: value,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   /// Text with an input mask: `#` digit, `A` letter, `*` either; e.g. `(###) ###-####`. The value keeps the literals.
@@ -939,6 +1054,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     required String mask,
     String? hint,
     String? value,
@@ -966,7 +1084,10 @@ class GSField extends StatefulWidget {
             validateRegEx: validateRegEx,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   /// A switch with a [hint] label. The value is a `bool`; `required` means it must be on.
@@ -985,6 +1106,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     String? hint,
     bool value = false,
   }) {
@@ -1006,7 +1130,10 @@ class GSField extends StatefulWidget {
             value: value,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   /// A slider. The value is a `double`, or `RangeValues` when [isRange] is true.
@@ -1025,6 +1152,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     required double min,
     required double max,
     int? divisions,
@@ -1052,7 +1182,10 @@ class GSField extends StatefulWidget {
             value: value,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   /// A text field with suggestions from [items]. The value is the picked `SpinnerDataModel`.
@@ -1071,6 +1204,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     required List<SpinnerDataModel> items,
     String? hint,
     SpinnerDataModel? value,
@@ -1094,7 +1230,10 @@ class GSField extends StatefulWidget {
             value: value,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   /// Any input you build. [builder] gets the current value and an `onChanged` to report new ones.
@@ -1113,6 +1252,9 @@ class GSField extends StatefulWidget {
     bool? readOnly,
     String? Function(dynamic value)? validator,
     ValueChanged<dynamic>? onChanged,
+    Future<String?> Function(dynamic value)? asyncValidator,
+    bool Function(Map<String, dynamic> values)? visibleWhen,
+    int? compactWeight,
     required GSCustomFieldBuilder builder,
     dynamic value,
   }) {
@@ -1134,7 +1276,10 @@ class GSField extends StatefulWidget {
             value: value,
           )
           ..validator = validator
-          ..onChanged = onChanged;
+          ..onChanged = onChanged
+          ..asyncValidator = asyncValidator
+          ..visibleWhen = visibleWhen
+          ..compactWeight = compactWeight;
   }
 
   //</editor-fold>
@@ -1222,6 +1367,21 @@ class _GSFieldState extends State<GSField> implements GSFieldHandle {
   }
 
   @override
+  Future<bool> validateAsync() async {
+    final model = widget.model;
+    final ok = validate();
+    if (!ok || model?.asyncValidator == null || model!.status == GSFieldStatusEnum.disabled) return ok;
+    setState(() => model.validating = true);
+    final message = await model.asyncValidator!(_callback.getValue());
+    model
+      ..validating = false
+      ..validatorMessage = message
+      ..status = message == null ? GSFieldStatusEnum.success : GSFieldStatusEnum.error;
+    if (mounted) setState(() {});
+    return message == null;
+  }
+
+  @override
   void reveal() {
     if (!mounted) return;
     Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 300), alignment: 0.2);
@@ -1301,6 +1461,11 @@ class _GSFieldState extends State<GSField> implements GSFieldHandle {
                     model!.postfixWidget!,
                     const SizedBox(width: 10.0),
                   ],
+                  if (model?.validating ?? false)
+                    const Padding(
+                      padding: EdgeInsetsDirectional.only(end: 10.0),
+                      child: SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
                 ],
               ),
             ),

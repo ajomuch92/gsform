@@ -12,6 +12,9 @@ class GSFormLabels {
     this.camera = 'Camera',
     this.gallery = 'Gallery',
     this.qrScannerTitle = 'QR scanner',
+    this.next = 'Next',
+    this.back = 'Back',
+    this.submit = 'Submit',
   });
 
   static const es = GSFormLabels(
@@ -20,6 +23,9 @@ class GSFormLabels {
     camera: 'Cámara',
     gallery: 'Galería',
     qrScannerTitle: 'Escanear QR',
+    next: 'Siguiente',
+    back: 'Atrás',
+    submit: 'Enviar',
   );
 
   final String from;
@@ -27,6 +33,11 @@ class GSFormLabels {
   final String camera;
   final String gallery;
   final String qrScannerTitle;
+
+  /// Stepper buttons.
+  final String next;
+  final String back;
+  final String submit;
 }
 
 /// Visual style of a form. Can also be registered app-wide with `ThemeData(extensions: [GSFormStyle(...)])`.
@@ -51,6 +62,9 @@ class GSFormStyle extends ThemeExtension<GSFormStyle> {
   Color successColor;
   GSFormLabels labels;
 
+  /// Sections narrower than this use each field's `compactWeight`.
+  double compactBreakpoint;
+
   GSFormStyle({
     TextStyle? titleStyle,
     Color? backgroundFieldColor,
@@ -70,7 +84,9 @@ class GSFormStyle extends ThemeExtension<GSFormStyle> {
     Color? errorColor,
     Color? successColor,
     GSFormLabels? labels,
-  }) : errorColor = errorColor ?? GSFormColors.red,
+    double? compactBreakpoint,
+  }) : compactBreakpoint = compactBreakpoint ?? 600,
+       errorColor = errorColor ?? GSFormColors.red,
        successColor = successColor ?? GSFormColors.green,
        labels = labels ?? const GSFormLabels(),
        backgroundSectionColor = backgroundSectionColor ?? GSFormColors.white,
@@ -133,6 +149,7 @@ class GSFormStyle extends ThemeExtension<GSFormStyle> {
     Color? errorColor,
     Color? successColor,
     GSFormLabels? labels,
+    double? compactBreakpoint,
   }) {
     return GSFormStyle(
       titleStyle: titleStyle ?? titleTextStyle,
@@ -153,6 +170,7 @@ class GSFormStyle extends ThemeExtension<GSFormStyle> {
       errorColor: errorColor ?? this.errorColor,
       successColor: successColor ?? this.successColor,
       labels: labels ?? this.labels,
+      compactBreakpoint: compactBreakpoint ?? this.compactBreakpoint,
     );
   }
 
@@ -178,6 +196,7 @@ class GSFormStyle extends ThemeExtension<GSFormStyle> {
       errorColor: Color.lerp(errorColor, other.errorColor, t),
       successColor: Color.lerp(successColor, other.successColor, t),
       labels: t < 0.5 ? labels : other.labels,
+      compactBreakpoint: lerpDouble(compactBreakpoint, other.compactBreakpoint, t),
     );
   }
 

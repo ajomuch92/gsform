@@ -8,6 +8,9 @@ abstract class GSFieldHandle {
 
   bool validate();
 
+  /// [validate], then the async validator if the sync checks passed.
+  Future<bool> validateAsync();
+
   void reveal();
 
   void setValue(dynamic value);
@@ -56,6 +59,18 @@ class GSFormController extends ChangeNotifier {
     return firstInvalid == null;
   }
 
+  /// Like [isValid], but also runs every field's `asyncValidator` (in parallel) once its sync checks pass.
+  Future<bool> isValidAsync({bool revealError = true}) async {
+    final fields = _fields.values.toList();
+    final results = await Future.wait(fields.map((f) => f.validateAsync()));
+    final firstInvalid = [
+      for (var i = 0; i < fields.length; i++)
+        if (!results[i]) fields[i],
+    ].firstOrNull;
+    if (revealError) firstInvalid?.reveal();
+    return firstInvalid == null;
+  }
+
   /// Restores [initialValues], or each field's own initial value when it has none.
   void reset() {
     _fields.forEach((tag, field) {
@@ -70,15 +85,43 @@ class GSFormController extends ChangeNotifier {
   GSFieldHandle _field(String tag) =>
       _fields[tag] ?? (throw ArgumentError.value(tag, 'tag', 'No field with this tag is mounted in the form'));
 
+  final Map<String, GlobalKey> _keys = {};
+
+  /// Internal: a stable key per tag, so a field keeps its state when the layout moves it to another row.
+  GlobalKey fieldKey(String tag) => _keys.putIfAbsent(tag, GlobalKey.new);
+
   /// Internal: called by fields.
   void register(GSFieldHandle field) {
     assert(_fields[field.tag] == null || identical(_fields[field.tag], field), 'Duplicate field tag "${field.tag}"');
     _fields[field.tag] = field;
+    _notifyAfterFrame();
   }
 
   /// Internal: called by fields.
   void unregister(GSFieldHandle field) {
-    if (identical(_fields[field.tag], field)) _fields.remove(field.tag);
+    if (identical(_fields[field.tag], field)) {
+      _fields.remove(field.tag);
+      _notifyAfterFrame();
+    }
+  }
+
+  bool _notifyScheduled = false;
+  bool _disposed = false;
+
+  /// Fields come and go during build (e.g. `visibleWhen`), where notifying is not allowed.
+  void _notifyAfterFrame() {
+    if (_notifyScheduled) return;
+    _notifyScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _notifyScheduled = false;
+      if (!_disposed) notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 
   /// Internal: called by fields when the user changes a value.
