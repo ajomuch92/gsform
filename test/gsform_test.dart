@@ -27,9 +27,7 @@ class _HostState extends State<_Host> {
 Future<(GSForm Function(), VoidCallback)> _pump(WidgetTester tester, List<Widget> Function() fields) async {
   late GSForm form;
   late VoidCallback rebuild;
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(body: _Host(fields, (f, r) => (form = f, rebuild = r))),
-  ));
+  await tester.pumpWidget(MaterialApp(home: Scaffold(body: _Host(fields, (f, r) => (form = f, rebuild = r)))));
   return (() => form, rebuild);
 }
 
@@ -59,9 +57,7 @@ void main() {
   });
 
   testWidgets('validateRegEx is applied and values are collected', (tester) async {
-    final (form, _) = await _pump(tester, () => [
-          GSField.text(tag: 'code', validateRegEx: RegExp(r'^\d{3}$')),
-        ]);
+    final (form, _) = await _pump(tester, () => [GSField.text(tag: 'code', validateRegEx: RegExp(r'^\d{3}$'))]);
     await tester.enterText(find.byType(TextField), 'abc');
     expect(form().isValid(), isFalse);
     await tester.enterText(find.byType(TextField), '123');
@@ -97,14 +93,20 @@ void main() {
   });
 
   testWidgets('required spinner with hint is invalid until a real item is picked', (tester) async {
-    final (form, _) = await _pump(tester, () => [
-          GSField.spinner(
-            tag: 's',
-            required: true,
-            hint: 'Choose',
-            items: [SpinnerDataModel(name: 'One', id: 1), SpinnerDataModel(name: 'Two', id: 2)],
-          ),
-        ]);
+    final (form, _) = await _pump(
+      tester,
+      () => [
+        GSField.spinner(
+          tag: 's',
+          required: true,
+          hint: 'Choose',
+          items: [
+            SpinnerDataModel(name: 'One', id: 1),
+            SpinnerDataModel(name: 'Two', id: 2),
+          ],
+        ),
+      ],
+    );
     expect(form().isValid(), isFalse);
     await tester.tap(find.text('Choose'));
     await tester.pumpAndSettle();
@@ -115,7 +117,11 @@ void main() {
   });
 
   testWidgets('GSField works outside a GSSection', (tester) async {
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: GSField.text(tag: 'x'))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: GSField.text(tag: 'x')),
+      ),
+    );
     expect(tester.takeException(), isNull);
     expect(find.byType(TextField), findsOneWidget);
   });
