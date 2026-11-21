@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,12 +19,12 @@ class GSFormUtils {
 
     switch (status) {
       case GSFieldStatusEnum.error:
-        backgroundColor = GSFormColors.redOpacity;
-        borderColor = GSFormColors.red;
+        backgroundColor = style.errorColor.withValues(alpha: 0.1);
+        borderColor = style.errorColor;
         break;
       case GSFieldStatusEnum.success:
-        backgroundColor = GSFormColors.greenOpacity;
-        borderColor = GSFormColors.green;
+        backgroundColor = style.successColor.withValues(alpha: 0.1);
+        borderColor = style.successColor;
         break;
       case GSFieldStatusEnum.normal:
         backgroundColor = style.backgroundFieldColor;
@@ -51,9 +49,10 @@ class GSFormUtils {
 
   static void showImagePickerBottomSheet(
     BuildContext context,
-    void Function(File image) callback, {
-    String? galleryName = 'Gallery',
-    String? cameraName = 'Camera',
+    void Function(XFile image) callback, {
+    String? galleryName,
+    String? cameraName,
+    GSFormStyle? style,
     Widget? cameraIcon,
     Widget? galleryIcon,
   }) {
@@ -90,7 +89,10 @@ class GSFormUtils {
                             children: [
                               cameraIcon ?? const Icon(Icons.camera, size: 40.0, color: Colors.blue),
                               const SizedBox(height: 10.0),
-                              Text(cameraName ?? 'Camera', style: GSFormStyle().titleTextStyle),
+                              Text(
+                                cameraName ?? (style ?? GSFormStyle()).labels.camera,
+                                style: (style ?? GSFormStyle()).titleTextStyle,
+                              ),
                             ],
                           ),
                         ),
@@ -110,7 +112,10 @@ class GSFormUtils {
                             children: [
                               galleryIcon ?? const Icon(Icons.photo_library, size: 40.0, color: Colors.blue),
                               const SizedBox(height: 10.0),
-                              Text(galleryName ?? 'Gallery', style: GSFormStyle().titleTextStyle),
+                              Text(
+                                galleryName ?? (style ?? GSFormStyle()).labels.gallery,
+                                style: (style ?? GSFormStyle()).titleTextStyle,
+                              ),
                             ],
                           ),
                         ),
@@ -126,16 +131,12 @@ class GSFormUtils {
     );
   }
 
-  static Future<File?> pickImage(ImageSource imageSource) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: imageSource, maxWidth: 400, maxHeight: 400);
+  static Future<XFile?> pickImage(ImageSource imageSource) =>
+      ImagePicker().pickImage(source: imageSource, maxWidth: 400, maxHeight: 400);
 
-    if (image != null) {
-      return File(image.path);
-    }
-
-    return null;
-  }
+  /// True when [image] is within [maxKB] (or there is no limit).
+  static Future<bool> fitsSize(XFile image, double? maxKB) async =>
+      maxKB == null || await image.length() / 1000 < maxKB;
 
   static bool isDirectionRTL(BuildContext context) {
     return Directionality.of(context) == TextDirection.rtl;
@@ -169,28 +170,57 @@ class GSFormUtils {
   }
 }
 
-class CardNumberFormatter extends TextInputFormatter {
-  final sampleNumber = '0000 0000 0000 0000';
+/// Formats input against a mask: `#` digit, `A` letter, `*` letter or digit; anything else is a literal.
+///
+/// shortcut: literals must not be digits/letters (e.g. no `+1` prefix), since they are stripped from the input
+/// before re-masking; use a prefixWidget for such prefixes.
+class GSMaskFormatter extends TextInputFormatter {
+  GSMaskFormatter(this.mask);
+
+  final String mask;
+
+  static final _slots = <String, bool Function(String)>{
+    '#': (c) => RegExp(r'[0-9]').hasMatch(c),
+    'A': (c) => RegExp(r'[a-zA-Z]').hasMatch(c),
+    '*': (c) => RegExp(r'[a-zA-Z0-9]').hasMatch(c),
+  };
+
+  /// True when every slot of the mask is filled.
+  bool isComplete(String text) => text.length == mask.length;
+
+  /// Applies the mask to [input]. Literals are only added once the next slot gets a character.
+  String apply(String input) {
+    final literals = mask.split('').where((c) => !_slots.containsKey(c)).toSet();
+    final raw = input.split('').where((c) => !literals.contains(c)).toList();
+    final out = StringBuffer();
+    final pending = StringBuffer();
+    var i = 0;
+    for (final m in mask.split('')) {
+      final test = _slots[m];
+      if (test == null) {
+        pending.write(m);
+        continue;
+      }
+      while (i < raw.length && !test(raw[i])) {
+        i++;
+      }
+      if (i >= raw.length) break;
+      out
+        ..write(pending)
+        ..write(raw[i++]);
+      pending.clear();
+    }
+    return out.toString();
+  }
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.text.length > oldValue.text.length) {
-      if (newValue.text.length > sampleNumber.length) {
-        return oldValue;
-      }
-
-      final lastEnteredLetter = newValue.text.substring(newValue.text.length - 1);
-      if (!RegExp(r'[0-9]').hasMatch(lastEnteredLetter)) {
-        return oldValue;
-      }
-
-      if (newValue.text.isNotEmpty && sampleNumber[newValue.text.length - 1] == ' ') {
-        return TextEditingValue(
-          text: '${oldValue.text} ${newValue.text.substring(newValue.text.length - 1)}',
-          selection: TextSelection.collapsed(offset: newValue.selection.end + 1),
-        );
-      }
-    }
-    return newValue;
+    // Leave deletions alone so the user can backspace over literals.
+    if (newValue.text.length < oldValue.text.length) return newValue;
+    final text = apply(newValue.text);
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 }
