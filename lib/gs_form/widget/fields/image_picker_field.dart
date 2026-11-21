@@ -1,13 +1,11 @@
 import 'dart:io';
 
-import 'package:figma_squircle_updated/figma_squircle.dart';
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/model/fields_model/image_picker_model.dart';
-import 'package:gsform/gs_form/util/util.dart';
-import 'package:gsform/gs_form/values/colors.dart';
-import 'package:image_cropper/image_cropper.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/image_picker_model.dart';
+import 'package:gsform_plus/gs_form/util/util.dart';
+import 'package:gsform_plus/gs_form/values/colors.dart';
 import 'package:image_picker/image_picker.dart';
 
 // ignore: must_be_immutable
@@ -15,7 +13,7 @@ class GSImagePickerField extends StatefulWidget implements GSFieldCallBack {
   final GSImagePickerModel model;
   final GSFormStyle formStyle;
 
-  GSImagePickerField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSImagePickerField(this.model, this.formStyle, {super.key});
   String? _croppedFilePath;
 
   @override
@@ -49,11 +47,9 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
 
   @override
   void didUpdateWidget(covariant GSImagePickerField oldWidget) {
-    if (widget.model.value != null) {
-      widget._croppedFilePath = widget.model.value;
-    } else {
-      widget._croppedFilePath = oldWidget._croppedFilePath;
-    }
+    widget._croppedFilePath = widget.model.value != oldWidget.model.value
+        ? widget.model.value
+        : oldWidget._croppedFilePath;
     super.didUpdateWidget(oldWidget);
   }
 
@@ -62,37 +58,31 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        customBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+        customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         onTap: () {
           if (widget.model.imageSource == GSImageSource.both) {
             GSFormUtils.showImagePickerBottomSheet(
               cameraName: widget.model.cameraPopupTitle,
               galleryName: widget.model.galleryPopupTitle,
-              cameraAssets: widget.model.cameraPopupIcon,
-              galleryAssets: widget.model.galleryPopupIcon,
+              cameraIcon: widget.model.cameraPopupIcon,
+              galleryIcon: widget.model.galleryPopupIcon,
               context,
               (image) async {
                 _fillImagePath(image);
               },
             );
           } else if (widget.model.imageSource == GSImageSource.camera) {
-            GSFormUtils.pickImage(ImageSource.camera).then(
-              (imageFile) {
-                if (imageFile != null) {
-                  _fillImagePath(imageFile);
-                }
-              },
-            );
+            GSFormUtils.pickImage(ImageSource.camera).then((imageFile) {
+              if (imageFile != null) {
+                _fillImagePath(imageFile);
+              }
+            });
           } else {
-            GSFormUtils.pickImage(ImageSource.gallery).then(
-              (imageFile) {
-                if (imageFile != null) {
-                  _fillImagePath(imageFile);
-                }
-              },
-            );
+            GSFormUtils.pickImage(ImageSource.gallery).then((imageFile) {
+              if (imageFile != null) {
+                _fillImagePath(imageFile);
+              }
+            });
           }
         },
         child: widget._croppedFilePath == null
@@ -104,63 +94,24 @@ class _GSImagePickerFieldState extends State<GSImagePickerField> {
                 onDeleteImage: () {
                   widget._croppedFilePath = null;
                   setState(() {});
-                }),
+                },
+              ),
       ),
     );
   }
 
-  _fillImagePath(File image) {
-    if (widget.model.showCropper ?? false) {
-      _cropImage(image);
-    } else {
-      setState(() {});
-      if (widget.model.maximumSizePerImageInBytes != null) {
-        if (image.lengthSync() / 1000 < widget.model.maximumSizePerImageInBytes!) {
-          widget._croppedFilePath = image.path;
-        } else {
-          widget.model.onErrorSizeItem?.call();
-        }
-      } else {
-        widget._croppedFilePath = image.path;
-      }
+  void _fillImagePath(File image) {
+    final maxKB = widget.model.maximumSizePerImageInKB;
+    if (maxKB != null && image.lengthSync() / 1000 >= maxKB) {
+      widget.model.onErrorSizeItem?.call();
+      return;
     }
-  }
-
-  Future<void> _cropImage(File image) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: image.path,
-      compressFormat: ImageCompressFormat.jpg,
-      compressQuality: 100,
-      uiSettings: [
-        AndroidUiSettings(
-            toolbarTitle: 'ویرایش تصویر',
-            toolbarColor: GSFormColors.white,
-            toolbarWidgetColor: Colors.black,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        IOSUiSettings(
-          title: 'Cropper',
-        ),
-      ],
-    );
-    if (croppedFile != null) {
-      setState(() {
-        if (widget.model.maximumSizePerImageInBytes != null) {
-          if (image.lengthSync() / 1000 < widget.model.maximumSizePerImageInBytes!) {
-            widget._croppedFilePath = image.path;
-          } else {
-            widget.model.onErrorSizeItem?.call();
-          }
-        } else {
-          widget._croppedFilePath = image.path;
-        }
-      });
-    }
+    setState(() => widget._croppedFilePath = image.path);
   }
 }
 
 class NormalView extends StatelessWidget {
-  const NormalView({required this.model, required this.formStyle, Key? key}) : super(key: key);
+  const NormalView({required this.model, required this.formStyle, super.key});
   final GSImagePickerModel model;
   final GSFormStyle formStyle;
 
@@ -181,26 +132,14 @@ class NormalView extends StatelessWidget {
                 visible: model.required ?? false,
                 child: Padding(
                   padding: const EdgeInsets.only(right: 4, left: 4),
-                  child: Text(
-                    formStyle.requiredText,
-                    style: const TextStyle(
-                      color: GSFormColors.red,
-                      fontSize: 10,
-                    ),
-                  ),
+                  child: Text(formStyle.requiredText, style: const TextStyle(color: GSFormColors.red, fontSize: 10)),
                 ),
               ),
-              Text(
-                model.title ?? '',
-                style: formStyle.titleTextStyle,
-              ),
+              Text(model.title ?? '', style: formStyle.titleTextStyle),
             ],
           ),
           const SizedBox(height: 6.0),
-          Text(
-            model.hint ?? '',
-            style: formStyle.fieldHintStyle,
-          ),
+          Text(model.hint ?? '', style: formStyle.fieldHintStyle),
         ],
       ),
     );
@@ -214,13 +153,13 @@ class ImagePickedView extends StatelessWidget {
   final GSFormStyle formStyle;
   final VoidCallback onDeleteImage;
 
-  ImagePickedView(
-      {required this.croppedFilePath,
-      Key? key,
-      required this.model,
-      required this.formStyle,
-      required this.onDeleteImage})
-      : super(key: key);
+  ImagePickedView({
+    required this.croppedFilePath,
+    super.key,
+    required this.model,
+    required this.formStyle,
+    required this.onDeleteImage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,9 +169,7 @@ class ImagePickedView extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.file(File(croppedFilePath), fit: BoxFit.contain),
-            ],
+            children: [Image.file(File(croppedFilePath), fit: BoxFit.contain)],
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -241,25 +178,13 @@ class ImagePickedView extends StatelessWidget {
                 height: 32.0,
                 decoration: const BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: SmoothBorderRadius.only(
-                    bottomLeft: SmoothRadius(
-                      cornerRadius: 11.0,
-                      cornerSmoothing: 1,
-                    ),
-                    bottomRight: SmoothRadius(
-                      cornerRadius: 11.0,
-                      cornerSmoothing: 1,
-                    ),
-                  ),
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(11.0)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0, left: 8.0),
                   child: Row(
                     children: [
-                      Text(
-                        model.title!,
-                        style: formStyle.titleTextStyle.copyWith(color: Colors.white),
-                      ),
+                      Text(model.title ?? '', style: formStyle.titleTextStyle.copyWith(color: Colors.white)),
                       const Spacer(),
                       SizedBox(
                         height: 20.0,
@@ -271,25 +196,15 @@ class ImagePickedView extends StatelessWidget {
                           onPressed: () {
                             onDeleteImage.call();
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(width: 8),
-                              Text(
-                                'حذف',
-                                maxLines: 1,
-                                style: formStyle.titleTextStyle.copyWith(color: Colors.white),
-                              ),
-                            ],
-                          ),
+                          child: const Icon(Icons.delete_outline, size: 14, color: Colors.white),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

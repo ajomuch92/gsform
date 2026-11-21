@@ -1,7 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
 
 import '../../core/form_style.dart';
 import '../../model/fields_model/text_password_model.dart';
@@ -14,7 +14,7 @@ class GSPasswordField extends StatefulWidget implements GSFieldCallBack {
 
   TextEditingController? controller;
 
-  GSPasswordField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSPasswordField(this.model, this.formStyle, {super.key});
 
   @override
   State<GSPasswordField> createState() => _GSPasswordFieldState();
@@ -88,9 +88,7 @@ class _GSPasswordFieldState extends State<GSPasswordField> {
             onTap: () {
               _update();
             },
-            child: Icon(
-              widget.obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-            ),
+            child: Icon(widget.obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded),
           ),
           hintStyle: widget.formStyle.fieldHintStyle,
         ),
@@ -98,7 +96,7 @@ class _GSPasswordFieldState extends State<GSPasswordField> {
     );
   }
 
-  _update() {
+  void _update() {
     if (mounted) {
       setState(() => widget.obscured = !widget.obscured);
     }

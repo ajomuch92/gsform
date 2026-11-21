@@ -1,14 +1,12 @@
 import 'dart:io';
 
-import 'package:figma_squircle_updated/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 import '../core/form_style.dart';
 import '../enums/field_status.dart';
+import '../model/data_model/date_data_model.dart';
 import '../values/colors.dart';
 
 class GSFormUtils {
@@ -44,23 +42,20 @@ class GSFormUtils {
     }
     return ShapeDecoration(
       color: backgroundColor,
-      shape: SmoothRectangleBorder(
+      shape: RoundedSuperellipseBorder(
         side: BorderSide(color: borderColor, width: borderWidth ?? 1.0),
-        borderRadius: SmoothBorderRadius(
-          cornerRadius: style.fieldRadius,
-          cornerSmoothing: 1,
-        ),
+        borderRadius: BorderRadius.circular(style.fieldRadius),
       ),
     );
   }
 
-  static showImagePickerBottomSheet(
+  static void showImagePickerBottomSheet(
     BuildContext context,
     void Function(File image) callback, {
     String? galleryName = 'Gallery',
     String? cameraName = 'Camera',
-    String? cameraAssets,
-    String? galleryAssets,
+    Widget? cameraIcon,
+    Widget? galleryIcon,
   }) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
@@ -76,10 +71,7 @@ class GSFormUtils {
                 child: Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16.0),
-                      topRight: Radius.circular(16.0),
-                    ),
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
                   ),
                   child: Row(
                     children: [
@@ -96,22 +88,9 @@ class GSFormUtils {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              cameraAssets == null
-                                  ? const Icon(
-                                      Icons.camera,
-                                      size: 40.0,
-                                      color: Colors.blue,
-                                    )
-                                  : SvgPicture.asset(
-                                      cameraAssets,
-                                      width: 40.0,
-                                      height: 40.0,
-                                    ),
+                              cameraIcon ?? const Icon(Icons.camera, size: 40.0, color: Colors.blue),
                               const SizedBox(height: 10.0),
-                              Text(
-                                cameraName ?? 'Camera',
-                                style: GSFormStyle().titleTextStyle,
-                              )
+                              Text(cameraName ?? 'Camera', style: GSFormStyle().titleTextStyle),
                             ],
                           ),
                         ),
@@ -129,22 +108,9 @@ class GSFormUtils {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              galleryAssets == null
-                                  ? const Icon(
-                                      Icons.photo_library,
-                                      size: 40.0,
-                                      color: Colors.blue,
-                                    )
-                                  : SvgPicture.asset(
-                                      galleryAssets,
-                                      width: 40.0,
-                                      height: 40.0,
-                                    ),
+                              galleryIcon ?? const Icon(Icons.photo_library, size: 40.0, color: Colors.blue),
                               const SizedBox(height: 10.0),
-                              Text(
-                                galleryName ?? 'Gallery',
-                                style: GSFormStyle().titleTextStyle,
-                              )
+                              Text(galleryName ?? 'Gallery', style: GSFormStyle().titleTextStyle),
                             ],
                           ),
                         ),
@@ -162,11 +128,7 @@ class GSFormUtils {
 
   static Future<File?> pickImage(ImageSource imageSource) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
-      source: imageSource,
-      maxWidth: 400,
-      maxHeight: 400,
-    );
+    final XFile? image = await picker.pickImage(source: imageSource, maxWidth: 400, maxHeight: 400);
 
     if (image != null) {
       return File(image.path);
@@ -176,7 +138,34 @@ class GSFormUtils {
   }
 
   static bool isDirectionRTL(BuildContext context) {
-    return Bidi.isRtlLanguage(Localizations.localeOf(context).languageCode);
+    return Directionality.of(context) == TextDirection.rtl;
+  }
+
+  static String formatDate(BuildContext context, DateTime date, GSDateFormatType? type) {
+    final l = MaterialLocalizations.of(context);
+    return switch (type) {
+      GSDateFormatType.fullText => l.formatFullDate(date),
+      GSDateFormatType.mediumText => l.formatMediumDate(date),
+      GSDateFormatType.shortText => l.formatShortDate(date),
+      _ => l.formatCompactDate(date),
+    };
+  }
+
+  /// First/last selectable day. Explicit bounds win; otherwise past days are blocked unless [isPastAvailable].
+  static DateTimeRange pickerBounds(bool? isPastAvailable, GSDate? from, GSDate? to) {
+    final first =
+        from?.toDateTime() ?? ((isPastAvailable ?? false) ? DateTime(1900) : DateUtils.dateOnly(DateTime.now()));
+    return DateTimeRange(start: first, end: to?.toDateTime() ?? DateTime(2100));
+  }
+
+  static DateTime clampDate(DateTime d, DateTimeRange bounds) =>
+      d.isBefore(bounds.start) ? bounds.start : (d.isAfter(bounds.end) ? bounds.end : d);
+
+  /// Formats the digits of [s] with thousands separators: '1234567' -> '1,234,567'.
+  /// Non-digit characters are dropped, so the result is always parseable after removing ','.
+  static String formatThousands(String s) {
+    final digits = s.replaceAll(RegExp(r'[^0-9]'), '').replaceFirst(RegExp(r'^0+(?=\d)'), '');
+    return digits.replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
   }
 }
 

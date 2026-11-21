@@ -4,7 +4,7 @@
 </br>
 </br>
 <p align="center">
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/gsform_logo.png?raw=true" width="300" height="100">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/gsform_logo.png?raw=true" width="300" height="100">
 
 </br>
 
@@ -16,11 +16,14 @@ Also included are common ready-made form input fields for GSForm. This gives you
 adding common ready-made input fields instead of creating your own FormBuilderField from scratch.
 <!--* Project status: working -->
 
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/header.jpg?raw=true">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/header.jpg?raw=true">
 
 See real examples:
 
-* <https://github.com/golrangsystem/gsform/tree/main/example>
+* <https://github.com/ajomuch92/gsform/tree/main/example>
+
+> **gsform_plus** is a maintained continuation of [gsform](https://pub.dev/packages/gsform) by Golrang System.
+> Coming from `gsform`? See [Migrating from gsform](#migrating-from-gsform).
 
 ## Table of contents
 
@@ -58,7 +61,7 @@ See real examples:
 <!-- >   * [Resources (Documentation and other links)](#resources-documentation-and-other-links) -->
 <!-- >   * [Contributing / Reporting issues](#contributing--reporting-issues) -->
 > * [License](#license)
->   * [About Golrang System](#about-golrang-system)
+>   * [Credits](#credits)
 
 ## Installation
 
@@ -68,15 +71,44 @@ With Flutter:
 </br>
 
 ```
-flutter pub add gsform
+flutter pub add gsform_plus
 ```
 
 This will add a line like this to your package's pubspec.yaml (and run an implicit flutter pub get):
 
 ```
 dependencies:
-  gsform: ^0.3.6
+  gsform_plus: ^1.0.0
 ```
+
+Then import everything from one place:
+
+```dart
+import 'package:gsform_plus/gsform_plus.dart';
+```
+
+Requires Flutter 3.32 or newer.
+
+### Platform setup
+
+Only needed if you use the image picker or QR scanner fields.
+
+* **iOS**: add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to `ios/Runner/Info.plist`.
+* **Android**: no extra setup for `image_picker`. For the QR scanner see the
+  [mobile_scanner setup](https://pub.dev/packages/mobile_scanner#platform-specific-setup).
+
+## Migrating from gsform
+
+1.0.0 removes dependencies that were heavy, unmaintained or easy to replace with Flutter itself. Breaking changes:
+
+* Package and import renamed: `package:gsform/...` → `package:gsform_plus/gsform_plus.dart`.
+* Jalali (Persian) calendar removed. Drop `calendarType:` from `GSField.datePicker` / `GSField.dateRangePicker`;
+  dates use Material's picker and are formatted with the app locale.
+* Image cropper removed: the `showCropper` option is gone.
+* `cameraPopupIcon` / `galleryPopupIcon` now take a `Widget` (pass `SvgPicture.asset(...)` yourself if you used SVGs).
+* `GSField.imagePicker(maximumSizePerImageInBytes:)` renamed to `maximumSizePerImageInKB` (it always compared kilobytes).
+* QR scanner now uses `mobile_scanner` (the old `qr_code_scanner` is discontinued).
+* The time field shows the time in the device's format (e.g. `3:05 PM`) and has no default hint.
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn
 more about it.
@@ -106,7 +138,7 @@ GSFormStyle(
 
 ```
 
-<td><img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/style.png?raw=true" alt="alternatetext" width="250" height="450">
+<td><img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/style.png?raw=true" alt="alternatetext" width="250" height="450">
 	  </td>
   </tr>
  </table>
@@ -115,7 +147,7 @@ GSFormStyle(
 As we all now Dark theme is trending and most of the popular app has the feature to turn into the dark mode, we support Dark theme in GSForm if you did'nt user custom Style in components, otherwise you should handle this yourself.
 
 <p align="center">
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/darksupport.png?raw=true" alt="alternatetext"  height="450">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/darksupport.png?raw=true" alt="alternatetext"  height="450">
 </br>
 </p>
 
@@ -159,7 +191,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/text.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/text.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -189,7 +221,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/text_plain.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/text_plain.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -214,7 +246,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/number.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/number.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -244,7 +276,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/spinner.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/spinner.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -263,8 +295,8 @@ GSField.text(
 	isPastAvailable: false,
 	required: true,
 	postfixWidget: widget,
-	displayDateType: DisplayDateType.numeric,
-	initialDate: Jalali.now(),
+	displayDateType: GSDateFormatType.numeric,
+	initialDate: GSDate(year: 2026, month: 1, day: 1),
 	errorMessage: 'error message',
 	hint: 'hint message',
 	helpMessage: 'help message',
@@ -274,7 +306,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/date.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/date.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -292,11 +324,10 @@ GSField.dateRangePicker(
 	weight: 12,
 	required: true,
 	postfixWidget: widget,
-	displayDateType: DisplayDateType.numeric,
+	displayDateType: GSDateFormatType.numeric,
 	isPastAvailable: false,
-	availableFrom: Jalali,
-	availableTo: Jalali,
-	initialDate: Jalali.now(),
+	availableFrom: GSDate(year: 2026, month: 1, day: 1),
+	availableTo: GSDate(year: 2026, month: 12, day: 31),
 	from: 'From : ',
 	to: 'To : ',
 	errorMessage: 'error message',
@@ -308,7 +339,7 @@ GSField.dateRangePicker(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/range_date.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/range_date.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -335,7 +366,7 @@ GSField.time(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/time.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/time.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -364,7 +395,7 @@ GSField.mobile(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/mobile.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/mobile.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -393,7 +424,7 @@ GSField.email(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/email.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/email.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -420,7 +451,7 @@ GSField.password(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/password.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/password.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -448,7 +479,7 @@ GSField.price(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/price.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/price.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -475,7 +506,7 @@ GSField.bankCard(
 
 </td>
 <td>
-<img src="https://github.com/golrangsystem/gsform/blob/main/screenshot/card.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/card.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -763,13 +794,6 @@ features of each field will be explained in detail below.
     <td>Required</td>
     <td>Description</td>
   </tr>
-   <tr>
-    <td>displayDateType</td>
-    <td><code> GSCalendarType </code></td>
-    <td>  jalali, gregoria </td>
-    <td><code> true </code></td>
-    <td>you can choose type of calendar jalali or gregorian</td>
-  </tr>
   <tr>
     <td>initialDate</td>
     <td><code> GSDate </code></td>
@@ -800,8 +824,8 @@ features of each field will be explained in detail below.
   </tr>
    <tr>
     <td>displayDateType</td>
-    <td><code> DisplayDateType </code></td>
-    <td> <code> numeric, // 1401/04/04 </code></br> <code> fullText, //  شنبه 04 تیر 1401 </code></br> <code> mediumText, // شنبه 04 تیر </code></br> <code> shortText, // 04 تیر ,1401 </code></br> </td>
+    <td><code> GSDateFormatType </code></td>
+    <td> <code> numeric, // 7/21/2026 </code></br> <code> fullText, // Tuesday, July 21, 2026 </code></br> <code> mediumText, // Tue, Jul 21 </code></br> <code> shortText, // Jul 21, 2026 </code></br> </td>
     <td><code> false </code></td>
     <td>you can pass ENUM type for calendar date type</td>
   </tr>
@@ -818,16 +842,9 @@ features of each field will be explained in detail below.
     <td>Description</td>
   </tr>
   <tr>
-    <td>calendarType</td>
-    <td><code> GSCalendarType </code></td>
-    <td>  jalali, gregoria </td>
-    <td><code> true </code></td>
-    <td>you can choose type of calendar jalali or gregorian</td>
-  </tr>
-  <tr>
     <td>displayDateType</td>
     <td><code> GSDateFormatType </code></td>
-    <td> <code> numeric, // 1401/04/04 </code></br> <code> fullText, //  شنبه 04 تیر 1401 </code></br> <code> mediumText, // شنبه 04 تیر </code></br> <code> shortText, // 04 تیر ,1401 </code></br> </td>
+    <td> <code> numeric, // 7/21/2026 </code></br> <code> fullText, // Tuesday, July 21, 2026 </code></br> <code> mediumText, // Tue, Jul 21 </code></br> <code> shortText, // Jul 21, 2026 </code></br> </td>
     <td><code> false </code></td>
     <td>you can choose type of display type</td>
   </tr>
@@ -915,24 +932,16 @@ Link to JIRA component (or project if there is no component for that project). S
  -->
  
 
-## About Rita Group
+## Credits
 
-Golrang System Company is an active company in the field of information and communication
-technology, which aims to provide information technology solutions to help productivity and improve
-the capability and profitability of Golrang Industrial Group as the arm of the senior management
-since the beginning of the group's establishment. The passage of time has reached growth.
+Originally created by [Golrang System](https://github.com/golrangsystem/gsform) and published as
+[gsform](https://pub.dev/packages/gsform) under the Apache License 2.0. This package is a modified,
+maintained continuation; see [CHANGELOG.md](CHANGELOG.md) for what changed.
 
-Considering the expansion of the use of information technology in the field of industry and the
-trend of companies towards globalization, this company has put the provision of advanced information
-and communication technology solutions on its agenda, and it tries to be an integrated task by
-focusing on the field of information and communication technology. Be responsible for creating
-systems, project management and technical and consulting services.
-
- ## Contributors
- <a href="https://github.com/golrangsystem/gsform/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=golrangsystem/gsform" />
+## Contributors
+<a href="https://github.com/ajomuch92/gsform/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ajomuch92/gsform" />
 </a>
-
 
 ## License
 

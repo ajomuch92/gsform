@@ -1,40 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/model/fields_model/field_model.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/field_model.dart';
 
 class GSBankCardModel extends GSFieldModel {
   String? hint;
 
-  GSBankCardModel(
-      {type,
-      tag,
-      title,
-      errorMessage,
-      helpMessage,
-      prefixWidget,
-      postfixWidget,
-      required,
-      status,
-      value,
-      validateRegEx,
-      weight,
-      showTitle,
-      enableReadOnly,
-      this.hint})
-      : super(
-          type: type,
-          tag: tag,
-          title: title,
-          errorMessage: errorMessage,
-          helpMessage: helpMessage,
-          prefixWidget: prefixWidget,
-          postfixWidget: postfixWidget,
-          required: required,
-          status: status,
-          showTitle: showTitle,
-          value: value,
-          validateRegEx: validateRegEx,
-          weight: weight,
-          enableReadOnly: enableReadOnly,
-          focusNode: FocusNode(),
-        );
+  GSBankCardModel({
+    super.type,
+    required super.tag,
+    super.title,
+    super.errorMessage,
+    super.helpMessage,
+    super.prefixWidget,
+    super.postfixWidget,
+    super.required,
+    super.status,
+    super.value,
+    super.validateRegEx,
+    super.weight,
+    super.showTitle,
+    super.enableReadOnly,
+    this.hint,
+  }) : super(focusNode: FocusNode());
 }

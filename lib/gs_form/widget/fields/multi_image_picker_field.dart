@@ -1,13 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/model/fields_model/image_picker_model.dart';
-import 'package:gsform/gs_form/util/util.dart';
-import 'package:gsform/gs_form/values/colors.dart';
-import 'package:image_cropper/image_cropper.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/image_picker_model.dart';
+import 'package:gsform_plus/gs_form/util/util.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../model/fields_model/multi_image_picker_model.dart';
@@ -17,7 +14,7 @@ class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack 
   final GSMultiImagePickerModel model;
   final GSFormStyle formStyle;
 
-  GSMultiImagePickerField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSMultiImagePickerField(this.model, this.formStyle, {super.key});
   List<String> _croppedFilePaths = [];
 
   @override
@@ -51,11 +48,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
 
   @override
   void didUpdateWidget(covariant GSMultiImagePickerField oldWidget) {
-    if ((widget.model.defaultImagePath ?? []).isNotEmpty) {
-      widget._croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
-    } else {
-      widget._croppedFilePaths = [];
-    }
+    widget._croppedFilePaths = oldWidget._croppedFilePaths;
     super.didUpdateWidget(oldWidget);
   }
 
@@ -64,34 +57,35 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.0,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-          ),
-          itemCount: widget._croppedFilePaths.length + 1,
-          itemBuilder: (context, index) {
-            return index == 0
-                ? SelectItem(
-                    model: widget.model,
-                    style: widget.formStyle,
-                    isEnable: _enableSelectImageButton(),
-                    callBack: (imagePath) {
-                      widget._croppedFilePaths.add(imagePath);
-                      setState(() {});
-                    },
-                  )
-                : ImageBox(
-                    imagePath: widget._croppedFilePaths[index - 1],
-                    onDelete: (value) {
-                      widget._croppedFilePaths.removeWhere((element) => element == value);
-                      setState(() {});
-                    },
-                  );
-          }),
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.0,
+          mainAxisSpacing: 10.0,
+          crossAxisSpacing: 10.0,
+        ),
+        itemCount: widget._croppedFilePaths.length + 1,
+        itemBuilder: (context, index) {
+          return index == 0
+              ? SelectItem(
+                  model: widget.model,
+                  style: widget.formStyle,
+                  isEnable: _enableSelectImageButton(),
+                  callBack: (imagePath) {
+                    widget._croppedFilePaths.add(imagePath);
+                    setState(() {});
+                  },
+                )
+              : ImageBox(
+                  imagePath: widget._croppedFilePaths[index - 1],
+                  onDelete: (value) {
+                    widget._croppedFilePaths.removeWhere((element) => element == value);
+                    setState(() {});
+                  },
+                );
+        },
+      ),
     );
   }
 
@@ -109,8 +103,13 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
 }
 
 class SelectItem extends StatelessWidget {
-  const SelectItem({required this.model, required this.style, required this.callBack, required this.isEnable, Key? key})
-      : super(key: key);
+  const SelectItem({
+    required this.model,
+    required this.style,
+    required this.callBack,
+    required this.isEnable,
+    super.key,
+  });
 
   final GSMultiImagePickerModel model;
   final GSFormStyle style;
@@ -125,109 +124,58 @@ class SelectItem extends StatelessWidget {
         absorbing: !isEnable,
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(10),
-              ),
-              border: Border.all(color: Colors.black45, width: 1)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            border: Border.all(color: Colors.black45, width: 1),
+          ),
           height: 90,
           width: 90,
           child: InkWell(
-            customBorder: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
+            customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
             onTap: () {
               if (model.imageSource == GSImageSource.both) {
                 GSFormUtils.showImagePickerBottomSheet(
                   cameraName: model.cameraPopupTitle,
                   galleryName: model.galleryPopupTitle,
-                  cameraAssets: model.cameraPopupIcon,
-                  galleryAssets: model.galleryPopupIcon,
+                  cameraIcon: model.cameraPopupIcon,
+                  galleryIcon: model.galleryPopupIcon,
                   context,
                   (image) async {
                     _fillImagePath(image);
                   },
                 );
               } else if (model.imageSource == GSImageSource.camera) {
-                GSFormUtils.pickImage(ImageSource.camera).then(
-                  (imageFile) {
-                    if (imageFile != null) {
-                      _fillImagePath(imageFile);
-                    }
-                  },
-                );
+                GSFormUtils.pickImage(ImageSource.camera).then((imageFile) {
+                  if (imageFile != null) {
+                    _fillImagePath(imageFile);
+                  }
+                });
               } else {
-                GSFormUtils.pickImage(ImageSource.gallery).then(
-                  (imageFile) {
-                    if (imageFile != null) {
-                      _fillImagePath(imageFile);
-                    }
-                  },
-                );
+                GSFormUtils.pickImage(ImageSource.gallery).then((imageFile) {
+                  if (imageFile != null) {
+                    _fillImagePath(imageFile);
+                  }
+                });
               }
             },
-            child: Container(
-              color: isEnable ? Colors.transparent : Colors.black45,
-              child: model.iconWidget,
-            ),
+            child: Container(color: isEnable ? Colors.transparent : Colors.black45, child: model.iconWidget),
           ),
         ),
       ),
     );
   }
 
-  _fillImagePath(File image) {
-    if (model.showCropper ?? false) {
-      _cropImage(image);
-    } else {
-      if (model.maximumSizePerImageInKB != null) {
-        if (image.lengthSync() / 1000 < model.maximumSizePerImageInKB!) {
-          callBack.call(image.path);
-        } else {
-          model.onErrorSizeItem?.call();
-        }
-      } else {
-        callBack.call(image.path);
-      }
+  void _fillImagePath(File image) {
+    final maxKB = model.maximumSizePerImageInKB;
+    if (maxKB != null && image.lengthSync() / 1000 >= maxKB) {
+      model.onErrorSizeItem?.call();
+      return;
     }
-  }
-
-  Future<void> _cropImage(File image) async {
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: image.path,
-      compressFormat: ImageCompressFormat.jpg,
-      compressQuality: 100,
-      uiSettings: [
-        AndroidUiSettings(
-            toolbarTitle: 'ویرایش تصویر',
-            toolbarColor: GSFormColors.white,
-            toolbarWidgetColor: Colors.black,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        IOSUiSettings(
-          title: 'Cropper',
-        ),
-      ],
-    );
-    if (croppedFile != null) {
-      if (model.maximumSizePerImageInKB != null) {
-        if (image.lengthSync() / 1000 < model.maximumSizePerImageInKB!) {
-          model.onErrorSizeItem?.call();
-        } else {
-          callBack.call(image.path);
-        }
-      } else {
-        callBack.call(image.path);
-      }
-    }
+    callBack.call(image.path);
   }
 }
 
 class ImageBox extends StatelessWidget {
-  const ImageBox({
-    Key? key,
-    required this.imagePath,
-    required this.onDelete,
-  }) : super(key: key);
+  const ImageBox({super.key, required this.imagePath, required this.onDelete});
   final String imagePath;
   final ValueChanged<String> onDelete;
 
@@ -236,49 +184,34 @@ class ImageBox extends StatelessWidget {
     return SizedBox(
       width: 100,
       height: 100,
-      child: Stack(fit: StackFit.expand, children: [
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
-          clipBehavior: Clip.hardEdge,
-          child: imagePath.contains('http')
-              ? Image.network(
-                  imagePath,
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.fill,
-                )
-              : Image.file(
-                  File(imagePath),
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.fill,
-                ),
-        ),
-        Positioned(
-          bottom: 8.0,
-          left: 8.0,
-          child: InkWell(
-            onTap: () {
-              onDelete.call(imagePath);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(4.0),
-              ),
-              child: SvgPicture.asset(
-                'packages/gsform/assets/ic_trash.svg',
-                height: 15,
-                width: 15,
-                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
+            clipBehavior: Clip.hardEdge,
+            child: imagePath.startsWith('http')
+                ? Image.network(imagePath, width: 90, height: 90, fit: BoxFit.fill)
+                : Image.file(File(imagePath), width: 90, height: 90, fit: BoxFit.fill),
+          ),
+          Positioned(
+            bottom: 8.0,
+            left: 8.0,
+            child: InkWell(
+              onTap: () {
+                onDelete.call(imagePath);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(4.0),
+                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4.0)),
+                child: const Icon(Icons.delete_outline, size: 15, color: Colors.white),
               ),
             ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

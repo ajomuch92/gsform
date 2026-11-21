@@ -7,45 +7,33 @@ class GSImagePickerModel extends GSFieldModel {
   Widget iconWidget;
   String? cameraPopupTitle;
   String? galleryPopupTitle;
-  String? cameraPopupIcon;
-  String? galleryPopupIcon;
+  Widget? cameraPopupIcon;
+  Widget? galleryPopupIcon;
   GSImageSource? imageSource;
-  bool? showCropper;
-  double? maximumSizePerImageInBytes;
+  double? maximumSizePerImageInKB;
   VoidCallback? onErrorSizeItem;
 
   GSImagePickerModel({
-    type,
-    tag,
-    title,
-    errorMessage,
-    helpMessage,
-    required,
-    status,
-    weight,
-    showTitle,
-    value,
+    super.type,
+    required super.tag,
+    super.title,
+    super.errorMessage,
+    super.helpMessage,
+    super.required,
+    super.status,
+    super.weight,
+    super.showTitle,
+    super.value,
     required this.iconWidget,
     this.cameraPopupIcon,
     this.galleryPopupIcon,
-    this.showCropper,
     this.cameraPopupTitle,
     this.galleryPopupTitle,
     this.imageSource,
     this.hint,
-    this.maximumSizePerImageInBytes,
+    this.maximumSizePerImageInKB,
     this.onErrorSizeItem,
-  }) : super(
-            type: type,
-            tag: tag,
-            title: title,
-            errorMessage: errorMessage,
-            helpMessage: helpMessage,
-            required: required,
-            status: status,
-            weight: weight,
-            showTitle: showTitle,
-            value: value);
+  });
 }
 
 enum GSImageSource { camera, gallery, both }

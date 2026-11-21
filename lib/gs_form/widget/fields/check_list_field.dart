@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/enums/required_check_list_enum.dart';
-import 'package:gsform/gs_form/model/data_model/check_data_model.dart';
-import 'package:gsform/gs_form/model/fields_model/checkbox_model.dart';
-import 'package:gsform/gs_form/values/colors.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/enums/required_check_list_enum.dart';
+import 'package:gsform_plus/gs_form/model/data_model/check_data_model.dart';
+import 'package:gsform_plus/gs_form/model/fields_model/checkbox_model.dart';
+import 'package:gsform_plus/gs_form/values/colors.dart';
 
 import '../../core/field_callback.dart';
 
@@ -17,7 +17,7 @@ class GSCheckListField extends StatefulWidget implements GSFieldCallBack {
 
   String keyword = "";
 
-  GSCheckListField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSCheckListField(this.model, this.formStyle, {super.key});
 
   List<CheckDataModel> valueObject = [];
 
@@ -68,12 +68,10 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
             ? Container(
                 margin: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
                 height: 44.0,
-                decoration: widget.model.searchBoxDecoration ??
+                decoration:
+                    widget.model.searchBoxDecoration ??
                     BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xffEAEAEA),
-                        width: 1,
-                      ),
+                      border: Border.all(color: const Color(0xffEAEAEA), width: 1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                 child: Row(
@@ -90,8 +88,9 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                         onChanged: (text) {
                           setState(() {
                             widget.keyword = text;
-                            widget.filteredItems =
-                                widget.model.items.where((i) => i.title.contains(widget.keyword) == true).toList();
+                            widget.filteredItems = widget.model.items
+                                .where((i) => i.title.contains(widget.keyword) == true)
+                                .toList();
                           });
                         },
                       ),
@@ -106,18 +105,13 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                       },
                       child: const Padding(
                         padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.close,
-                          color: GSFormColors.hintTextColor,
-                        ),
+                        child: Icon(Icons.close, color: GSFormColors.hintTextColor),
                       ),
                     ),
                   ],
                 ),
               )
-            : const SizedBox(
-                height: 0,
-              ),
+            : const SizedBox(height: 0),
         SizedBox(
           height: widget.model.height,
           child: RawScrollbar(
@@ -149,9 +143,7 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                       widget.model.callBack(item);
                       setState(() {});
                     },
-                    customBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
+                    customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0, right: 4.0),
                       child: CheckBoxItem(widget.filteredItems[index], widget.model, widget.formStyle!),
@@ -172,7 +164,7 @@ class CheckBoxItem extends StatelessWidget {
   final GSFormStyle formStyle;
   final GSCheckBoxModel _model;
 
-  const CheckBoxItem(this._item, this._model, this.formStyle, {Key? key}) : super(key: key);
+  const CheckBoxItem(this._item, this._model, this.formStyle, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +180,7 @@ class CheckBoxItem extends StatelessWidget {
                       width: 18,
                       height: 18,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.4),
+                        color: Colors.grey.withValues(alpha: 0.4),
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -207,18 +199,11 @@ class CheckBoxItem extends StatelessWidget {
                         ),
                       )
                     : _model.selectedIcon!,
-              )
+              ),
             ],
           ),
-          const SizedBox(
-            width: 8,
-          ),
-          Expanded(
-            child: Text(
-              _item.title,
-              style: formStyle.fieldTextStyle,
-            ),
-          ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(_item.title, style: formStyle.fieldTextStyle)),
         ],
       ),
     );

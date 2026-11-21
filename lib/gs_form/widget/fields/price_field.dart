@@ -1,10 +1,10 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:intl/intl.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
 
 import '../../core/form_style.dart';
+import '../../util/util.dart';
 import '../../model/fields_model/price_model.dart';
 
 class GSPriceField extends StatefulWidget implements GSFieldCallBack {
@@ -12,7 +12,7 @@ class GSPriceField extends StatefulWidget implements GSFieldCallBack {
   GSFormStyle formStyle;
   TextEditingController? controller;
 
-  GSPriceField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSPriceField(this.model, this.formStyle, {super.key});
 
   @override
   State<GSPriceField> createState() => _GSPriceFieldState();
@@ -34,8 +34,6 @@ class GSPriceField extends StatefulWidget implements GSFieldCallBack {
       return model.validateRegEx!.hasMatch(controller!.text);
     }
   }
-
-  String _formatNumber(String s) => NumberFormat.decimalPattern().format(int.parse(s));
 }
 
 class _GSPriceFieldState extends State<GSPriceField> {
@@ -43,12 +41,11 @@ class _GSPriceFieldState extends State<GSPriceField> {
   void initState() {
     widget.controller ??= TextEditingController();
     if (widget.model.value != null) {
-      widget.model.value = widget._formatNumber(widget.model.value.replaceAll(',', ''));
+      widget.model.value = GSFormUtils.formatThousands(widget.model.value);
       widget.controller?.value = TextEditingValue(
         text: widget.model.value,
         selection: TextSelection.collapsed(offset: widget.model.value.length),
       );
-      widget.controller?.text = widget.model.value;
     }
     super.initState();
   }
@@ -60,12 +57,11 @@ class _GSPriceFieldState extends State<GSPriceField> {
       widget.controller = oldWidget.controller;
     } else {
       widget.controller ??= TextEditingController();
-      widget.model.value = widget._formatNumber(widget.model.value.replaceAll(',', ''));
+      widget.model.value = GSFormUtils.formatThousands(widget.model.value);
       widget.controller?.value = TextEditingValue(
         text: widget.model.value,
         selection: TextSelection.collapsed(offset: widget.model.value.length),
       );
-      widget.controller?.text = widget.model.value;
     }
   }
 
@@ -86,7 +82,7 @@ class _GSPriceFieldState extends State<GSPriceField> {
           FocusScope.of(context).requestFocus(widget.model.nextFocusNode);
         },
         onChanged: (string) {
-          string = widget._formatNumber(string.replaceAll(',', ''));
+          string = GSFormUtils.formatThousands(string);
           widget.controller!.value = TextEditingValue(
             text: string,
             selection: TextSelection.collapsed(offset: string.length),
