@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/enums/field_status.dart';
-import 'package:gsform/gs_form/model/data_model/date_data_model.dart';
-import 'package:gsform/gs_form/model/data_model/radio_data_model.dart';
-import 'package:gsform/gs_form/model/data_model/spinner_data_model.dart';
-import 'package:gsform/gs_form/widget/field.dart';
-import 'package:gsform/gs_form/widget/form.dart';
-import 'package:gsform/gs_form/widget/section.dart';
+import 'package:gsform_plus/gsform_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -264,7 +257,6 @@ class MultiSectionForm extends StatelessWidget {
                       callBack: (data) {},
                     ),
                     GSField.datePicker(
-                      calendarType: GSCalendarType.gregorian,
                       tag: 'licenceExpireDate',
                       title: 'DatePicker',
                       weight: 12,
