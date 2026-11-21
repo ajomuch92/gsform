@@ -14,23 +14,23 @@ class DateDataRangeModel {
   String displayStartDateStr;
   String displayEndDateStr;
 
-  DateDataRangeModel(
-      {required this.startDateServerType,
-      required this.endDateServerType,
-      required this.startTimeStamp,
-      required this.endTimeStamp,
-      required this.displayStartDateStr,
-      required this.displayEndDateStr});
+  DateDataRangeModel({
+    required this.startDateServerType,
+    required this.endDateServerType,
+    required this.startTimeStamp,
+    required this.endTimeStamp,
+    required this.displayStartDateStr,
+    required this.displayEndDateStr,
+  });
 }
 
+/// How a picked date is displayed. Rendered with the app's [MaterialLocalizations].
 enum GSDateFormatType {
-  numeric, // 1401/04/04
-  fullText, //  شنبه 04 تیر 1401
-  mediumText, // شنبه 04 تیر
-  shortText, // 04 تیر ,1401
+  numeric, // 7/21/2026
+  fullText, // Tuesday, July 21, 2026
+  mediumText, // Tue, Jul 21
+  shortText, // Jul 21, 2026
 }
-
-enum GSCalendarType { jalali, gregorian }
 
 class GSDate {
   int year;
@@ -40,4 +40,6 @@ class GSDate {
   int day;
 
   GSDate({required this.year, required this.month, required this.day});
+
+  DateTime toDateTime() => DateTime(year, month, day);
 }
