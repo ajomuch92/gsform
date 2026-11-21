@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/constant.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/constant.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
 
 import '../../core/form_style.dart';
 import '../../model/fields_model/email_model.dart';
@@ -9,9 +9,9 @@ import '../../model/fields_model/email_model.dart';
 class GSEmailField extends StatefulWidget implements GSFieldCallBack {
   final GSEmailModel model;
   final GSFormStyle formStyle;
-  TextEditingController? controller = TextEditingController();
+  TextEditingController? controller;
 
-  GSEmailField(this.model, this.formStyle, {Key? key}) : super(key: key);
+  GSEmailField(this.model, this.formStyle, {super.key});
 
   @override
   State<GSEmailField> createState() => _GSEmailFieldState();
@@ -59,9 +59,6 @@ class _GSEmailFieldState extends State<GSEmailField> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.model.value != null) {
-      widget.controller?.text = widget.model.value;
-    }
     return Padding(
       padding: const EdgeInsets.only(right: 10.0, left: 10.0),
       child: TextField(

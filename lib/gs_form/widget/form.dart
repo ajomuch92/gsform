@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gsform/gs_form/core/field_callback.dart';
-import 'package:gsform/gs_form/core/form_style.dart';
-import 'package:gsform/gs_form/enums/field_status.dart';
-import 'package:gsform/gs_form/util/util.dart';
+import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/enums/field_status.dart';
+import 'package:gsform_plus/gs_form/util/util.dart';
 
 import 'field.dart';
 import 'section.dart';
@@ -13,27 +13,16 @@ class GSForm extends StatelessWidget {
   late List<GSSection> sections;
   late List<Widget> fields;
 
-  GSForm.singleSection(BuildContext context, {Key? key, this.style, required this.fields}) : super(key: key) {
+  GSForm.singleSection(BuildContext context, {super.key, this.style, required this.fields}) {
     style ??= GSFormUtils.checkIfDarkModeEnabled(context)
-        ? style ?? GSFormStyle.singleSectionFormDefaultDarkStyle
+        ? GSFormStyle.singleSectionFormDefaultDarkStyle
         : GSFormStyle.singleSectionFormDefaultStyle;
-    sections = [
-      GSSection(
-        style: style,
-        sectionTitle: null,
-        fields: fields,
-      )
-    ];
-    GSForm.multiSection(
-      context,
-      style: style,
-      sections: sections,
-    );
+    sections = [GSSection(style: style, sectionTitle: null, fields: fields)];
   }
 
-  GSForm.multiSection(BuildContext context, {Key? key, this.style, required this.sections}) : super(key: key) {
+  GSForm.multiSection(BuildContext context, {super.key, this.style, required this.sections}) {
     style ??= GSFormUtils.checkIfDarkModeEnabled(context)
-        ? style ?? GSFormStyle.multiSectionFormDefaultDarkStyle
+        ? GSFormStyle.multiSectionFormDefaultDarkStyle
         : GSFormStyle.multiSectionFormDefaultStyle;
     for (var element in sections) {
       element.style = style;
@@ -42,9 +31,7 @@ class GSForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: sections,
-    );
+    return Column(children: sections);
   }
 
   bool isValid() {
