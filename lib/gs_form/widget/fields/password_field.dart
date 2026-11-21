@@ -1,18 +1,17 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_input_value.dart';
 
 import '../../core/form_style.dart';
 import '../../model/fields_model/text_password_model.dart';
 
-class GSPasswordField extends StatefulWidget implements GSFieldCallBack {
+class GSPasswordField extends StatefulWidget with GSTextInputValue {
+  @override
   late GSPasswordModel model;
   GSFormStyle formStyle;
   void Function(void Function())? state;
   bool obscured = true;
-
-  TextEditingController? controller;
 
   GSPasswordField(this.model, this.formStyle, {super.key});
 
@@ -41,11 +40,7 @@ class GSPasswordField extends StatefulWidget implements GSFieldCallBack {
 class _GSPasswordFieldState extends State<GSPasswordField> {
   @override
   void initState() {
-    widget.controller ??= TextEditingController();
-
-    if (widget.model.value != null) {
-      widget.controller?.text = widget.model.value;
-    }
+    if (widget.controller == null) widget.setValue(widget.model.value);
     super.initState();
   }
 
@@ -55,8 +50,7 @@ class _GSPasswordFieldState extends State<GSPasswordField> {
     if (oldWidget.model.value == widget.model.value) {
       widget.controller = oldWidget.controller;
     } else {
-      widget.controller ??= TextEditingController();
-      widget.controller!.text = widget.model.value;
+      widget.setValue(widget.model.value);
     }
   }
 
@@ -72,6 +66,7 @@ class _GSPasswordFieldState extends State<GSPasswordField> {
         focusNode: widget.model.focusNode,
         style: widget.formStyle.fieldTextStyle,
         controller: widget.controller,
+        onChanged: (_) => widget.notifyChanged(),
         obscuringCharacter: '●',
         textInputAction: widget.model.nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
         onSubmitted: (_) {

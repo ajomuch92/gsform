@@ -1,18 +1,21 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_input_value.dart';
 
 import '../../core/form_style.dart';
 import '../../util/util.dart';
 import '../../model/fields_model/price_model.dart';
 
-class GSPriceField extends StatefulWidget implements GSFieldCallBack {
+class GSPriceField extends StatefulWidget with GSTextInputValue {
+  @override
   late GSPriceModel model;
   GSFormStyle formStyle;
-  TextEditingController? controller;
 
   GSPriceField(this.model, this.formStyle, {super.key});
+
+  @override
+  String formatValue(String text) => GSFormUtils.formatThousands(text);
 
   @override
   State<GSPriceField> createState() => _GSPriceFieldState();
@@ -39,14 +42,7 @@ class GSPriceField extends StatefulWidget implements GSFieldCallBack {
 class _GSPriceFieldState extends State<GSPriceField> {
   @override
   void initState() {
-    widget.controller ??= TextEditingController();
-    if (widget.model.value != null) {
-      widget.model.value = GSFormUtils.formatThousands(widget.model.value);
-      widget.controller?.value = TextEditingValue(
-        text: widget.model.value,
-        selection: TextSelection.collapsed(offset: widget.model.value.length),
-      );
-    }
+    if (widget.controller == null) widget.setValue(widget.model.value);
     super.initState();
   }
 
@@ -56,12 +52,7 @@ class _GSPriceFieldState extends State<GSPriceField> {
     if (oldWidget.model.value == widget.model.value) {
       widget.controller = oldWidget.controller;
     } else {
-      widget.controller ??= TextEditingController();
-      widget.model.value = GSFormUtils.formatThousands(widget.model.value);
-      widget.controller?.value = TextEditingValue(
-        text: widget.model.value,
-        selection: TextSelection.collapsed(offset: widget.model.value.length),
-      );
+      widget.setValue(widget.model.value);
     }
   }
 
@@ -87,6 +78,7 @@ class _GSPriceFieldState extends State<GSPriceField> {
             text: string,
             selection: TextSelection.collapsed(offset: string.length),
           );
+          widget.notifyChanged();
         },
         decoration: InputDecoration(
           hintText: widget.model.hint,

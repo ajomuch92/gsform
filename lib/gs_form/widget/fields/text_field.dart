@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_input_value.dart';
 import 'package:gsform_plus/gs_form/core/form_style.dart';
 import 'package:gsform_plus/gs_form/model/fields_model/text_filed_model.dart';
 
 // ignore: must_be_immutable
-class GSTextField extends StatefulWidget implements GSFieldCallBack {
+class GSTextField extends StatefulWidget with GSTextInputValue {
+  @override
   final GSTextModel model;
   final GSFormStyle formStyle;
-  TextEditingController? controller;
 
   GSTextField(this.model, this.formStyle, {super.key});
 
@@ -36,10 +36,7 @@ class GSTextField extends StatefulWidget implements GSFieldCallBack {
 class _GSTextFieldState extends State<GSTextField> {
   @override
   void initState() {
-    widget.controller ??= TextEditingController();
-    if (widget.model.value != null) {
-      widget.controller?.text = widget.model.value;
-    }
+    if (widget.controller == null) widget.setValue(widget.model.value);
     super.initState();
   }
 
@@ -49,8 +46,7 @@ class _GSTextFieldState extends State<GSTextField> {
     if (oldWidget.model.value == widget.model.value) {
       widget.controller = oldWidget.controller;
     } else {
-      widget.controller ??= TextEditingController();
-      widget.controller!.text = widget.model.value;
+      widget.setValue(widget.model.value);
     }
   }
 
@@ -61,6 +57,7 @@ class _GSTextFieldState extends State<GSTextField> {
       child: TextField(
         readOnly: widget.model.enableReadOnly ?? false,
         controller: widget.controller,
+        onChanged: (_) => widget.notifyChanged(),
         maxLength: widget.model.maxLength,
         style: widget.formStyle.fieldTextStyle,
         keyboardType: TextInputType.text,

@@ -33,20 +33,27 @@ class GSDatePickerField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   bool isValid() => !(model.required ?? false) || selectedDate != null;
+
+  /// Accepts a [DateTime] or `null`.
+  @override
+  void setValue(dynamic value) => selectedDate = value == null ? null : DateUtils.dateOnly(value as DateTime);
+
+  @override
+  void reset() => setValue(model.initialDate?.toDateTime());
 }
 
 class _GSDatePickerFieldState extends State<GSDatePickerField> {
   @override
   void initState() {
     super.initState();
-    widget.selectedDate = widget.model.initialDate?.toDateTime();
+    widget.selectedDate ??= widget.model.initialDate?.toDateTime();
   }
 
   @override
   void didUpdateWidget(covariant GSDatePickerField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Keep the user's pick when the parent rebuilds.
-    widget.selectedDate = oldWidget.selectedDate ?? widget.model.initialDate?.toDateTime();
+    widget.selectedDate = oldWidget.selectedDate;
   }
 
   @override
@@ -82,7 +89,11 @@ class _GSDatePickerFieldState extends State<GSDatePickerField> {
       lastDate: bounds.end,
     );
     if (picked != null && mounted) {
-      setState(() => widget.selectedDate = picked);
+      setState(() {
+        widget.selectedDate = picked;
+        widget.selectedDateText = GSFormUtils.formatDate(context, picked, widget.model.dateFormatType);
+      });
+      widget.model.notifyChanged(widget.getValue());
     }
   }
 }

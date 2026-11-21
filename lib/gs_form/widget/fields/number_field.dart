@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:gsform_plus/gs_form/core/field_callback.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_input_value.dart';
 
 import '../../core/form_style.dart';
 import '../../model/fields_model/number_model.dart';
 
 // ignore: must_be_immutable
-class GSNumberField extends StatefulWidget implements GSFieldCallBack {
+class GSNumberField extends StatefulWidget with GSTextInputValue {
+  @override
   final GSNumberModel model;
   final GSFormStyle formStyle;
-  TextEditingController? controller;
 
   GSNumberField(this.model, this.formStyle, {super.key});
 
@@ -37,11 +37,7 @@ class GSNumberField extends StatefulWidget implements GSFieldCallBack {
 class _GSNumberFieldState extends State<GSNumberField> {
   @override
   void initState() {
-    widget.controller ??= TextEditingController();
-
-    if (widget.model.value != null) {
-      widget.controller?.text = widget.model.value;
-    }
+    if (widget.controller == null) widget.setValue(widget.model.value);
     super.initState();
   }
 
@@ -51,8 +47,7 @@ class _GSNumberFieldState extends State<GSNumberField> {
     if (oldWidget.model.value == widget.model.value) {
       widget.controller = oldWidget.controller;
     } else {
-      widget.controller ??= TextEditingController();
-      widget.controller!.text = widget.model.value;
+      widget.setValue(widget.model.value);
     }
   }
 
@@ -64,6 +59,7 @@ class _GSNumberFieldState extends State<GSNumberField> {
         readOnly: widget.model.enableReadOnly ?? false,
         textAlignVertical: TextAlignVertical.center,
         controller: widget.controller,
+        onChanged: (_) => widget.notifyChanged(),
         maxLength: widget.model.maxLength,
         style: widget.formStyle.fieldTextStyle,
         keyboardType: TextInputType.phone,
