@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:gsform_plus/gs_form/widget/fields/text_input_value.dart';
 import 'package:gsform_plus/gs_form/model/fields_model/bank_card_filed_model.dart';
 
-import '../../core/field_callback.dart';
 import '../../core/form_style.dart';
 import '../../util/util.dart';
 
 // ignore: must_be_immutable
-class GSBankCardField extends StatefulWidget implements GSFieldCallBack {
+class GSBankCardField extends StatefulWidget with GSTextInputValue {
+  @override
   final GSBankCardModel model;
   final GSFormStyle formStyle;
-  TextEditingController? controller;
 
   GSBankCardField(this.model, this.formStyle, {super.key});
+
+  static final formatter = GSMaskFormatter('#### #### #### ####');
+
+  @override
+  String formatValue(String text) => formatter.apply(text);
 
   @override
   State<GSBankCardField> createState() => _GSBankCardFieldState();
@@ -38,10 +43,7 @@ class GSBankCardField extends StatefulWidget implements GSFieldCallBack {
 class _GSBankCardFieldState extends State<GSBankCardField> {
   @override
   void initState() {
-    widget.controller ??= TextEditingController();
-    if (widget.model.value != null) {
-      widget.controller?.text = widget.model.value;
-    }
+    if (widget.controller == null) widget.setValue(widget.model.value);
     super.initState();
   }
 
@@ -50,8 +52,7 @@ class _GSBankCardFieldState extends State<GSBankCardField> {
     if (oldWidget.model.value == widget.model.value) {
       widget.controller = oldWidget.controller;
     } else {
-      widget.controller ??= TextEditingController();
-      widget.controller!.text = widget.model.value;
+      widget.setValue(widget.model.value);
     }
 
     super.didUpdateWidget(oldWidget);
@@ -63,10 +64,11 @@ class _GSBankCardFieldState extends State<GSBankCardField> {
       padding: const EdgeInsets.only(right: 10.0, left: 10.0),
       child: TextField(
         readOnly: widget.model.enableReadOnly ?? false,
-        inputFormatters: [CardNumberFormatter()],
+        inputFormatters: [GSBankCardField.formatter],
         textAlign: TextAlign.center,
         textDirection: TextDirection.ltr,
         controller: widget.controller,
+        onChanged: (_) => widget.notifyChanged(),
         maxLines: 1,
         style: widget.formStyle.fieldTextStyle,
         keyboardType: TextInputType.number,
