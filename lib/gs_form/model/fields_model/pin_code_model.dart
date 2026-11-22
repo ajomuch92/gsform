@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-
 import 'field_model.dart';
 
 class GSPinCodeModel extends GSFieldModel {
@@ -22,5 +20,5 @@ class GSPinCodeModel extends GSFieldModel {
     super.enableReadOnly,
     required this.length,
     this.obscure = false,
-  }) : super(focusNode: FocusNode());
+  });
 }

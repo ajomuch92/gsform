@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:gsform_plus/gs_form/model/fields_model/field_model.dart';
 
 class GSBankCardModel extends GSFieldModel {
@@ -20,5 +19,5 @@ class GSBankCardModel extends GSFieldModel {
     super.showTitle,
     super.enableReadOnly,
     this.hint,
-  }) : super(focusNode: FocusNode());
+  });
 }

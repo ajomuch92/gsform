@@ -194,8 +194,23 @@ class _GSFormHostState extends State<_GSFormHost> {
     );
   }
 
+  /// One key and focus node per tag and occurrence (`name`, `name#1`, ...): stable across rebuilds, and repeated tags
+  /// never share them. A focus node passed by the user is kept.
+  void _assignLayoutKeys() {
+    final seen = <String, int>{};
+    for (final f in form.sections.expand((s) => s.fields).whereType<GSField>()) {
+      final tag = f.model?.tag;
+      if (tag == null) continue;
+      final n = seen[tag] = (seen[tag] ?? -1) + 1;
+      final slot = n == 0 ? tag : '$tag#$n';
+      f.layoutKey = _controller.fieldKey(slot);
+      f.model?.focusNode ??= _controller.focusNode(slot);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _assignLayoutKeys();
     return GSFormScope(
       controller: _controller,
       autovalidateMode: form.autovalidateMode,

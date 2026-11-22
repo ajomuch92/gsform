@@ -24,7 +24,7 @@ class GSSection extends StatelessWidget {
   }
 
   /// Lays fields out in rows of up to 12 weight units. Plain widgets take a full row.
-  List<Widget> _rows(List<Widget> visible, bool compact, GSFormController? controller) {
+  List<Widget> _rows(List<Widget> visible, bool compact) {
     final rows = <Widget>[];
     var current = <Widget>[];
     var sum = 0;
@@ -50,11 +50,10 @@ class GSSection extends StatelessWidget {
       f.formStyle = style!;
       if (sum + weight > 12) flush();
       if (current.isNotEmpty) current.add(const SizedBox(width: 12));
-      final tag = model?.tag;
       current.add(
         Expanded(
           flex: weight,
-          child: controller == null || tag == null ? f : KeyedSubtree(key: controller.fieldKey(tag), child: f),
+          child: f.layoutKey == null ? f : KeyedSubtree(key: f.layoutKey, child: f),
         ),
       );
       sum += weight;
@@ -71,7 +70,7 @@ class GSSection extends StatelessWidget {
 
     Widget layout() => LayoutBuilder(
       builder: (context, constraints) =>
-          Column(children: _rows(visibleFields(controller), constraints.maxWidth < style!.compactBreakpoint, controller)),
+          Column(children: _rows(visibleFields(controller), constraints.maxWidth < style!.compactBreakpoint)),
     );
     // Only sections with conditional fields need to rebuild on every value change.
     final body = conditional && controller != null

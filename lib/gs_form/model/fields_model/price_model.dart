@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import 'field_model.dart';
 
 class GSPriceModel extends GSFieldModel {
@@ -25,5 +23,5 @@ class GSPriceModel extends GSFieldModel {
     super.enableReadOnly,
     super.onTap,
     this.hint,
-  }) : super(focusNode: FocusNode());
+  });
 }

@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import 'field_model.dart';
 
 class GSMobileModel extends GSFieldModel {
@@ -24,5 +22,5 @@ class GSMobileModel extends GSFieldModel {
     super.onTap,
     this.maxLength,
     this.hint,
-  }) : super(validateRegEx: validateReg, focusNode: FocusNode());
+  }) : super(validateRegEx: validateReg);
 }

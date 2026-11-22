@@ -27,6 +27,7 @@
 * Row layout: a field whose weight doesn't fit in the current row now starts a new row (weights 6 + 12 used to share one row).
 * `GSForm` keeps an internal controller when none is passed. A controller notifies its listeners once after fields mount or unmount.
 * `GSField.value` returns `null` and `validate()` returns `true` for fields that are not built.
+* Repeated tags in one form print a debug warning; as in 1.0, the last field wins in the submitted values.
 
 ### Fixed
 
@@ -36,6 +37,7 @@
 * The price field lost its text on parent rebuild when it had an initial value.
 * A plain widget placed right after a field in a section crashed the layout.
 * Fields moved to another row (by `compactWeight` or `visibleWhen`) kept no state; they now keep what the user typed.
+* Text fields (all but `text`) lost focus on every parent rebuild, e.g. when `onChanged` called `setState`.
 
 ## 1.0.0
 

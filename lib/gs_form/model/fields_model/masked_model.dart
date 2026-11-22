@@ -26,5 +26,5 @@ class GSMaskedModel extends GSFieldModel {
     required this.mask,
     this.hint,
     this.keyboardType,
-  }) : super(focusNode: FocusNode());
+  });
 }

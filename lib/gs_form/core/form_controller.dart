@@ -86,13 +86,22 @@ class GSFormController extends ChangeNotifier {
       _fields[tag] ?? (throw ArgumentError.value(tag, 'tag', 'No field with this tag is mounted in the form'));
 
   final Map<String, GlobalKey> _keys = {};
+  final Map<String, FocusNode> _focusNodes = {};
 
-  /// Internal: a stable key per tag, so a field keeps its state when the layout moves it to another row.
-  GlobalKey fieldKey(String tag) => _keys.putIfAbsent(tag, GlobalKey.new);
+  /// Internal: a focus node per layout slot that survives rebuilds; a new node each rebuild would drop focus.
+  FocusNode focusNode(String slot) => _focusNodes.putIfAbsent(slot, FocusNode.new);
+
+  /// Internal: a stable key per layout slot (tag + occurrence), so a field keeps its state when the layout moves it
+  /// to another row.
+  GlobalKey fieldKey(String slot) => _keys.putIfAbsent(slot, GlobalKey.new);
 
   /// Internal: called by fields.
   void register(GSFieldHandle field) {
-    assert(_fields[field.tag] == null || identical(_fields[field.tag], field), 'Duplicate field tag "${field.tag}"');
+    final existing = _fields[field.tag];
+    if (existing != null && !identical(existing, field)) {
+      // Kept working like 1.0 (the last field wins), but it is almost always a mistake.
+      debugPrint('gsform_plus: more than one field uses the tag "${field.tag}"; only the last one is kept in values.');
+    }
     _fields[field.tag] = field;
     _notifyAfterFrame();
   }
@@ -121,6 +130,9 @@ class GSFormController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 

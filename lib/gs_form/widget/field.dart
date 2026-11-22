@@ -70,6 +70,9 @@ class GSField extends StatefulWidget {
   VoidCallback? onUpdate;
   _GSFieldState? _state;
 
+  /// Internal: set by `GSForm` so the field keeps its state when the layout moves it to another row.
+  GlobalKey? layoutKey;
+
   void update() {
     onUpdate?.call();
   }

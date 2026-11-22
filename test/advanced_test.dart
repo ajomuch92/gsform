@@ -11,7 +11,9 @@ Future<void> pumpApp(WidgetTester tester, Widget Function(BuildContext context) 
   }
   await tester.pumpWidget(
     MaterialApp(
-      home: Scaffold(body: SingleChildScrollView(child: Builder(builder: builder))),
+      home: Scaffold(
+        body: SingleChildScrollView(child: Builder(builder: builder)),
+      ),
     ),
   );
   await tester.pump(); // let post-frame visibility updates settle
@@ -136,8 +138,14 @@ void main() {
         onComplete: (values) => result = values,
         onStepChanged: steps.add,
         sections: [
-          GSSection(sectionTitle: 'Account', fields: [GSField.text(tag: 'name', hint: 'Name', required: true)]),
-          GSSection(sectionTitle: 'Contact', fields: [GSField.email(tag: 'email', hint: 'Email')]),
+          GSSection(
+            sectionTitle: 'Account',
+            fields: [GSField.text(tag: 'name', hint: 'Name', required: true)],
+          ),
+          GSSection(
+            sectionTitle: 'Contact',
+            fields: [GSField.email(tag: 'email', hint: 'Email')],
+          ),
         ],
       );
     });
@@ -206,5 +214,60 @@ void main() {
       expect(y('B'), greaterThan(y('plain')));
       expect(y('C'), greaterThan(y('B')));
     });
+  });
+
+  testWidgets('repeated tags do not crash (last one wins in the values, like 1.0)', (tester) async {
+    late GSForm form;
+    await pumpApp(tester, (context) {
+      return form = GSForm.multiSection(
+        context,
+        sections: [
+          GSSection(
+            sectionTitle: 'One',
+            fields: [
+              GSField.text(tag: 'name', value: 'first'),
+              GSField.text(tag: 'name', value: 'second'),
+            ],
+          ),
+          GSSection(
+            sectionTitle: 'Two',
+            fields: [GSField.text(tag: 'name', value: 'third')],
+          ),
+        ],
+      );
+    });
+    expect(tester.takeException(), isNull);
+    expect(form.onSubmit(), {'name': 'third'});
+  });
+
+  testWidgets('text inputs keep focus when the parent rebuilds on every change', (tester) async {
+    for (final make in <GSField Function()>[
+      () => GSField.masked(tag: 'f', mask: '####'),
+      () => GSField.pinCode(tag: 'f', length: 4),
+      () => GSField.password(tag: 'f'),
+      () => GSField.bankCard(tag: 'f'),
+      () => GSField.text(tag: 'f'),
+      () => GSField.email(tag: 'f'),
+      () => GSField.number(tag: 'f'),
+      () => GSField.price(tag: 'f'),
+      () => GSField.mobile(tag: 'f'),
+      () => GSField.textPlain(tag: 'f'),
+    ]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              // Rebuilds the whole form on each keystroke, like an onChanged that calls setState.
+              builder: (context, setState) =>
+                  GSForm.singleSection(context, onChanged: (_, _) => setState(() {}), fields: [make()]),
+            ),
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(EditableText), '12');
+      await tester.pump();
+      final editable = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editable.focusNode.hasFocus, isTrue, reason: make().model!.type.toString());
+    }
   });
 }
