@@ -125,10 +125,10 @@ class _SingleSectionFormState extends State<SingleSectionForm> {
                         required: true,
                         maxLength: 100,
                         errorMessage: 'erro',
-                        value: 'dastras.saeed@gmail.com',
+                        value: 'user@example.com',
                       ),
                       GSField.spinner(
-                        tag: 'customer_type',
+                        tag: 'category',
                         required: false,
                         weight: 12,
                         showTitle: false,
@@ -143,7 +143,7 @@ class _SingleSectionFormState extends State<SingleSectionForm> {
                         ],
                       ),
                       GSField.spinner(
-                        tag: 'customer_type',
+                        tag: 'gender',
                         required: false,
                         weight: 6,
                         title: 'Gender',
@@ -209,7 +209,7 @@ class MultiSectionForm extends StatelessWidget {
                       sectionTitle: 'User information',
                       fields: [
                         GSField.text(value: 'Some text', tag: 'name', title: 'Name', minLine: 1, maxLine: 1),
-                        GSField.text(value: 'Some text', tag: 'name', title: 'Name', minLine: 1, maxLine: 1),
+                        GSField.text(value: 'Some text', tag: 'middleName', title: 'Middle name', minLine: 1, maxLine: 1),
                         GSField.radioGroup(
                           hint: 'Radio Group',
                           tag: 'radio',
@@ -252,7 +252,7 @@ class MultiSectionForm extends StatelessWidget {
                           required: true,
                         ),
                         GSField.spinner(
-                          tag: 'customer_type',
+                          tag: 'gender',
                           required: false,
                           weight: 6,
                           title: 'Gender',
@@ -279,7 +279,7 @@ class MultiSectionForm extends StatelessWidget {
                       sectionTitle: 'Market information',
                       fields: [
                         GSField.text(
-                          tag: 'name',
+                          tag: 'marketName',
                           title: 'Market name',
                           minLine: 1,
                           maxLine: 1,
@@ -289,7 +289,7 @@ class MultiSectionForm extends StatelessWidget {
                         ),
                         GSField.textPlain(
                           hint: 'sds',
-                          tag: 'lastName',
+                          tag: 'marketAddress',
                           title: 'Market address',
                           maxLine: 4,
                           maxLength: 233,
@@ -299,7 +299,7 @@ class MultiSectionForm extends StatelessWidget {
                           required: true,
                         ),
                         GSField.spinner(
-                          tag: 'customer_type',
+                          tag: 'marketType',
                           required: false,
                           weight: 6,
                           title: 'Market type',
@@ -309,7 +309,7 @@ class MultiSectionForm extends StatelessWidget {
                           ],
                         ),
                         GSField.mobile(
-                          tag: 'mobile',
+                          tag: 'marketPhone',
                           title: 'Telephone',
                           maxLength: 11,
                           helpMessage: '9357814747',

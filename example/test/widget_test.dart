@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:formtest/features_page.dart';
+import 'package:formtest/main.dart';
 import 'package:formtest/wizard_page.dart';
 
 Future<void> tapText(WidgetTester tester, String text) async {
@@ -44,5 +45,14 @@ void main() {
     await tapText(tester, 'I accept the terms');
     await tapText(tester, 'Submit');
     expect(find.textContaining('Done:'), findsOneWidget);
+  });
+
+  testWidgets('original single and multi section demos build without errors', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: SingleSectionForm()));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(MaterialApp(home: MultiSectionForm()));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
   });
 }
