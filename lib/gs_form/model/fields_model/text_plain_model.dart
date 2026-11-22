@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import 'field_model.dart';
 
 class GSTextPlainModel extends GSFieldModel {
@@ -30,5 +28,5 @@ class GSTextPlainModel extends GSFieldModel {
     this.maxLine,
     this.hint,
     this.showCounter,
-  }) : super(focusNode: FocusNode());
+  });
 }

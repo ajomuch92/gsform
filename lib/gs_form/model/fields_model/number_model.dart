@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:gsform_plus/gs_form/model/fields_model/field_model.dart';
 
 class GSNumberModel extends GSFieldModel {
@@ -26,5 +25,5 @@ class GSNumberModel extends GSFieldModel {
     this.showCounter,
     this.maxLength,
     this.hint,
-  }) : super(focusNode: FocusNode());
+  });
 }

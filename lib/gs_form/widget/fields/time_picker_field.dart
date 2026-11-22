@@ -26,20 +26,27 @@ class GSTimePickerField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   bool isValid() => !(model.required ?? false) || selectedTime != null;
+
+  /// Accepts a [TimeOfDay] or `null`.
+  @override
+  void setValue(dynamic value) => selectedTime = value as TimeOfDay?;
+
+  @override
+  void reset() => setValue(model.initialTime);
 }
 
 class _GSTimePickerFieldState extends State<GSTimePickerField> {
   @override
   void initState() {
     super.initState();
-    widget.selectedTime = widget.model.initialTime;
+    widget.selectedTime ??= widget.model.initialTime;
   }
 
   @override
   void didUpdateWidget(covariant GSTimePickerField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Keep the user's pick when the parent rebuilds.
-    widget.selectedTime = oldWidget.selectedTime ?? widget.model.initialTime;
+    widget.selectedTime = oldWidget.selectedTime;
   }
 
   @override
@@ -68,7 +75,11 @@ class _GSTimePickerFieldState extends State<GSTimePickerField> {
       useRootNavigator: false,
     );
     if (picked != null && mounted) {
-      setState(() => widget.selectedTime = picked);
+      setState(() {
+        widget.selectedTime = picked;
+        widget.selectedTimeText = picked.format(context);
+      });
+      widget.model.notifyChanged(widget.getValue());
     }
   }
 }

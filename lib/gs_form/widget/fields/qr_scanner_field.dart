@@ -30,15 +30,16 @@ class GSQRScannerField extends StatefulWidget implements GSFieldCallBack {
       return _scannedValue?.isNotEmpty ?? false;
     }
   }
+
+  /// Accepts a `String` or `null`.
+  @override
+  void setValue(dynamic value) => _scannedValue = value as String?;
+
+  @override
+  void reset() => setValue(null);
 }
 
 class _GSQRScannerFieldState extends State<GSQRScannerField> {
-  @override
-  void initState() {
-    super.initState();
-    widget._scannedValue = null;
-  }
-
   @override
   void didUpdateWidget(covariant GSQRScannerField oldWidget) {
     widget._scannedValue = oldWidget._scannedValue;
@@ -56,10 +57,11 @@ class _GSQRScannerFieldState extends State<GSQRScannerField> {
           onTap: () async {
             final code = await Navigator.push<String>(
               context,
-              MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+              MaterialPageRoute(builder: (_) => QrScannerScreen(title: widget.formStyle.labels.qrScannerTitle)),
             );
             if (code != null && mounted) {
               setState(() => widget._scannedValue = code);
+              widget.model.notifyChanged(code);
             }
           },
           child: Padding(

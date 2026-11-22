@@ -1,11 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gsform_plus/gs_form/core/field_callback.dart';
 import 'package:gsform_plus/gs_form/core/form_style.dart';
 import 'package:gsform_plus/gs_form/model/fields_model/image_picker_model.dart';
 import 'package:gsform_plus/gs_form/util/util.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../util/file_image.dart' if (dart.library.io) '../../util/file_image_io.dart';
 
 import '../../model/fields_model/multi_image_picker_model.dart';
 
@@ -33,17 +33,20 @@ class GSMultiImagePickerField extends StatefulWidget implements GSFieldCallBack 
       return (_croppedFilePaths).isNotEmpty;
     }
   }
+
+  /// Accepts a list of image paths/URLs or `null`.
+  @override
+  void setValue(dynamic value) => _croppedFilePaths = [...?(value as Iterable?)?.cast<String>()];
+
+  @override
+  void reset() => setValue(model.defaultImagePath);
 }
 
 class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
   @override
   void initState() {
     super.initState();
-    if ((widget.model.defaultImagePath ?? []).isNotEmpty) {
-      widget._croppedFilePaths.addAll(widget.model.defaultImagePath ?? []);
-    } else {
-      widget._croppedFilePaths = [];
-    }
+    if (widget._croppedFilePaths.isEmpty) widget.reset();
   }
 
   @override
@@ -74,6 +77,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                   isEnable: _enableSelectImageButton(),
                   callBack: (imagePath) {
                     widget._croppedFilePaths.add(imagePath);
+                    widget.model.notifyChanged(List.of(widget._croppedFilePaths));
                     setState(() {});
                   },
                 )
@@ -81,6 +85,7 @@ class _GSMultiImagePickerFieldState extends State<GSMultiImagePickerField> {
                   imagePath: widget._croppedFilePaths[index - 1],
                   onDelete: (value) {
                     widget._croppedFilePaths.removeWhere((element) => element == value);
+                    widget.model.notifyChanged(List.of(widget._croppedFilePaths));
                     setState(() {});
                   },
                 );
@@ -136,6 +141,7 @@ class SelectItem extends StatelessWidget {
                 GSFormUtils.showImagePickerBottomSheet(
                   cameraName: model.cameraPopupTitle,
                   galleryName: model.galleryPopupTitle,
+                  style: style,
                   cameraIcon: model.cameraPopupIcon,
                   galleryIcon: model.galleryPopupIcon,
                   context,
@@ -164,9 +170,8 @@ class SelectItem extends StatelessWidget {
     );
   }
 
-  void _fillImagePath(File image) {
-    final maxKB = model.maximumSizePerImageInKB;
-    if (maxKB != null && image.lengthSync() / 1000 >= maxKB) {
+  Future<void> _fillImagePath(XFile image) async {
+    if (!await GSFormUtils.fitsSize(image, model.maximumSizePerImageInKB)) {
       model.onErrorSizeItem?.call();
       return;
     }
@@ -194,7 +199,7 @@ class ImageBox extends StatelessWidget {
             clipBehavior: Clip.hardEdge,
             child: imagePath.startsWith('http')
                 ? Image.network(imagePath, width: 90, height: 90, fit: BoxFit.fill)
-                : Image.file(File(imagePath), width: 90, height: 90, fit: BoxFit.fill),
+                : gsFileImage(imagePath, width: 90, height: 90, fit: BoxFit.fill),
           ),
           Positioned(
             bottom: 8.0,

@@ -1,6 +1,7 @@
 library;
 
 export 'gs_form/core/field_callback.dart';
+export 'gs_form/core/form_controller.dart' show GSFormController;
 export 'gs_form/core/form_style.dart';
 export 'gs_form/enums/field_status.dart';
 export 'gs_form/enums/filed_type.dart';
@@ -10,7 +11,9 @@ export 'gs_form/model/data_model/date_data_model.dart';
 export 'gs_form/model/data_model/radio_data_model.dart';
 export 'gs_form/model/data_model/spinner_data_model.dart';
 export 'gs_form/model/data_model/time_data_model.dart';
+export 'gs_form/model/fields_model/custom_model.dart' show GSCustomFieldBuilder;
 export 'gs_form/model/fields_model/image_picker_model.dart' show GSImageSource;
+export 'gs_form/util/util.dart' show GSMaskFormatter;
 export 'gs_form/values/colors.dart';
 export 'gs_form/values/theme.dart';
 export 'gs_form/widget/field.dart';

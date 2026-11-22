@@ -41,12 +41,28 @@ class GSCheckListField extends StatefulWidget implements GSFieldCallBack {
       }
     }
   }
+
+  /// Accepts a list of [CheckDataModel]s (matched by title) and/or item `data` values, or `null` (none).
+  @override
+  void setValue(dynamic value) {
+    final wanted = (value as Iterable?)?.toList() ?? const [];
+    for (final e in model.items) {
+      e.isSelected = wanted.any((v) => v is CheckDataModel ? identical(e, v) || e.title == v.title : e.data == v);
+    }
+    valueObject = model.items.where((e) => e.isSelected).toList();
+  }
+
+  @override
+  void reset() => setValue(model.value);
 }
 
 class _GSCheckListFieldState extends State<GSCheckListField> {
   @override
   void initState() {
     widget.filteredItems = widget.model.items;
+    // Pre-selected items count as values from the start.
+    widget.valueObject = widget.model.items.where((e) => e.isSelected).toList();
+    widget.model.value ??= List.of(widget.valueObject); // remembered for reset()
     super.initState();
   }
 
@@ -138,10 +154,11 @@ class _GSCheckListFieldState extends State<GSCheckListField> {
                       if (item.isSelected) {
                         widget.valueObject.add(item);
                       } else {
-                        widget.valueObject.removeWhere((element) => element.data == item.data);
+                        widget.valueObject.removeWhere((element) => identical(element, item));
                       }
                       widget.model.callBack(item);
                       setState(() {});
+                      widget.model.notifyChanged(List.of(widget.valueObject));
                     },
                     customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
                     child: Padding(

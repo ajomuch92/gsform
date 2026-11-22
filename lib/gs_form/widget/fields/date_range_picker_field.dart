@@ -38,25 +38,30 @@ class GSDateRangePickerField extends StatefulWidget implements GSFieldCallBack {
 
   @override
   bool isValid() => !(model.required ?? false) || selectedRange != null;
+
+  /// Accepts a [DateTimeRange] or `null`.
+  @override
+  void setValue(dynamic value) => selectedRange = value as DateTimeRange?;
+
+  @override
+  void reset() {
+    final start = model.initialStartDate, end = model.initialEndDate;
+    setValue(start == null || end == null ? null : DateTimeRange(start: start.toDateTime(), end: end.toDateTime()));
+  }
 }
 
 class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
-  DateTimeRange? _initialRange() {
-    final start = widget.model.initialStartDate, end = widget.model.initialEndDate;
-    return start == null || end == null ? null : DateTimeRange(start: start.toDateTime(), end: end.toDateTime());
-  }
-
   @override
   void initState() {
     super.initState();
-    widget.selectedRange = _initialRange();
+    if (widget.selectedRange == null) widget.reset();
   }
 
   @override
   void didUpdateWidget(covariant GSDateRangePickerField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Keep the user's pick when the parent rebuilds.
-    widget.selectedRange = oldWidget.selectedRange ?? _initialRange();
+    widget.selectedRange = oldWidget.selectedRange;
   }
 
   @override
@@ -75,7 +80,8 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
           child: Text(
             r == null
                 ? widget.model.hint ?? ''
-                : '${widget.model.from}: ${widget.startText}   ${widget.model.to}: ${widget.endText}',
+                : '${widget.model.from ?? widget.formStyle.labels.from}: ${widget.startText}   '
+                      '${widget.model.to ?? widget.formStyle.labels.to}: ${widget.endText}',
             style: r == null ? widget.formStyle.fieldHintStyle : widget.formStyle.fieldTextStyle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -100,7 +106,12 @@ class _GSDateRangePickerFieldState extends State<GSDateRangePickerField> {
       lastDate: bounds.end,
     );
     if (picked != null && mounted) {
-      setState(() => widget.selectedRange = picked);
+      setState(() {
+        widget.selectedRange = picked;
+        widget.startText = GSFormUtils.formatDate(context, picked.start, widget.model.dateFormatType);
+        widget.endText = GSFormUtils.formatDate(context, picked.end, widget.model.dateFormatType);
+      });
+      widget.model.notifyChanged(widget.getValue());
     }
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gsform_plus/gs_form/core/form_controller.dart';
 import 'package:gsform_plus/gs_form/core/form_style.dart';
+import 'package:gsform_plus/gs_form/enums/filed_type.dart';
 import 'package:gsform_plus/gs_form/values/theme.dart';
 import 'package:gsform_plus/gs_form/widget/field.dart';
-import 'package:gsform_plus/gs_form/widget/fields/text_plain_field.dart';
 
 // ignore: must_be_immutable
 class GSSection extends StatelessWidget {
@@ -12,79 +13,91 @@ class GSSection extends StatelessWidget {
 
   GSSection({super.key, required this.fields, this.style, required this.sectionTitle});
 
+  /// Fields currently part of the form (see `visibleWhen`).
+  List<Widget> visibleFields(GSFormController? controller) {
+    if (controller == null) return fields;
+    final values = controller.values;
+    return [
+      for (final f in fields)
+        if (f is! GSField || f.model?.visibleWhen == null || f.model!.visibleWhen!(values)) f,
+    ];
+  }
+
+  /// Lays fields out in rows of up to 12 weight units. Plain widgets take a full row.
+  List<Widget> _rows(List<Widget> visible, bool compact) {
+    final rows = <Widget>[];
+    var current = <Widget>[];
+    var sum = 0;
+    void flush() {
+      if (current.isNotEmpty) rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: current));
+      current = [];
+      sum = 0;
+    }
+
+    for (var i = 0; i < visible.length; i++) {
+      final f = visible[i];
+      if (f is! GSField) {
+        flush();
+        rows.add(Row(children: [Expanded(child: f)]));
+        continue;
+      }
+      final model = f.model;
+      final weight = ((compact ? model?.compactWeight : null) ?? model?.weight ?? 12).clamp(1, 12);
+      final next = i + 1 < visible.length ? visible[i + 1] : null;
+      if (next is GSField && next.model?.type != GSFieldTypeEnum.textPlain) {
+        model?.nextFocusNode = next.model?.focusNode;
+      }
+      f.formStyle = style!;
+      if (sum + weight > 12) flush();
+      if (current.isNotEmpty) current.add(const SizedBox(width: 12));
+      current.add(
+        Expanded(
+          flex: weight,
+          child: f.layoutKey == null ? f : KeyedSubtree(key: f.layoutKey, child: f),
+        ),
+      );
+      sum += weight;
+    }
+    flush();
+    return rows;
+  }
+
   @override
   Widget build(BuildContext context) {
     style = style ?? GSFormStyle();
+    final controller = GSFormScope.of(context)?.controller;
+    final conditional = fields.any((f) => f is GSField && f.model?.visibleWhen != null);
 
-    List<Row> rows = [];
-
-    int i = 0; // while index on fields
-    int weightSum = 0;
-
-    while (i < fields.length) {
-      if (fields[i] is GSField) {
-        List<Widget> childrenAtRow = []; // children in each row
-        while (weightSum < 12 && i <= fields.length - 1) {
-          GSField field = fields[i] as GSField;
-          childrenAtRow.add(Expanded(flex: field.model?.weight ?? 12, child: field));
-
-          weightSum += field.model?.weight ?? 12;
-          if (i < fields.length - 1 && fields[i + 1] is GSField && fields[i + 1] is! GSTextPlainField) {
-            field.model?.nextFocusNode = (fields[i + 1] as GSField).model?.focusNode;
-          }
-          field.formStyle = style!;
-          i++;
-
-          // این شرط برای فاصله انداختن بین ویجت هاست به طوری روی اولین ویجت اعمال نشود
-          if (weightSum != 12) {
-            childrenAtRow.add(const SizedBox(width: 12));
-          }
-        }
-        rows.add(Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: childrenAtRow));
-        weightSum = 0;
-      } else {
-        rows.add(Row(children: [Expanded(flex: 12, child: fields[i])]));
-        i++;
-      }
-    }
+    Widget layout() => LayoutBuilder(
+      builder: (context, constraints) =>
+          Column(children: _rows(visibleFields(controller), constraints.maxWidth < style!.compactBreakpoint)),
+    );
+    // Only sections with conditional fields need to rebuild on every value change.
+    final body = conditional && controller != null
+        ? ListenableBuilder(listenable: controller, builder: (_, _) => layout())
+        : layout();
 
     return Column(
       children: [
-        sectionTitle != null
-            ? Padding(
-                padding: const EdgeInsetsDirectional.only(start: 4),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Text(sectionTitle!, style: style?.sectionTitleStyle ?? GSFormTheme.textThemeStyle.displayLarge),
-                      ],
-                    ),
-                    const SizedBox(height: 6.0),
-                  ],
+        if (sectionTitle != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6.0),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    sectionTitle!,
+                    style: style?.sectionTitleStyle ?? GSFormTheme.textThemeStyle.displayLarge,
+                  ),
                 ),
-              )
-            : Container(),
+              ],
+            ),
+          ),
         Card(
           color: style?.backgroundSectionColor,
           elevation: style?.sectionCardElevation,
           shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(style!.sectionRadius)),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: style!.sectionCardPadding,
-              right: style!.sectionCardPadding,
-              top: style!.sectionCardPadding,
-              bottom: style!.sectionCardPadding,
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: rows.length,
-              itemBuilder: (context, index) {
-                return rows[index];
-              },
-            ),
-          ),
+          child: Padding(padding: EdgeInsets.all(style!.sectionCardPadding), child: body),
         ),
       ],
     );

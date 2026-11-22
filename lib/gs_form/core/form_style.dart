@@ -1,8 +1,47 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 import 'package:gsform_plus/gs_form/values/colors.dart';
 import 'package:gsform_plus/gs_form/values/theme.dart';
 
-class GSFormStyle {
+/// Built-in texts shown by the fields. Override per field where a parameter exists (e.g. `from`, `cameraPopupTitle`).
+class GSFormLabels {
+  const GSFormLabels({
+    this.from = 'From',
+    this.to = 'To',
+    this.camera = 'Camera',
+    this.gallery = 'Gallery',
+    this.qrScannerTitle = 'QR scanner',
+    this.next = 'Next',
+    this.back = 'Back',
+    this.submit = 'Submit',
+  });
+
+  static const es = GSFormLabels(
+    from: 'Desde',
+    to: 'Hasta',
+    camera: 'Cámara',
+    gallery: 'Galería',
+    qrScannerTitle: 'Escanear QR',
+    next: 'Siguiente',
+    back: 'Atrás',
+    submit: 'Enviar',
+  );
+
+  final String from;
+  final String to;
+  final String camera;
+  final String gallery;
+  final String qrScannerTitle;
+
+  /// Stepper buttons.
+  final String next;
+  final String back;
+  final String submit;
+}
+
+/// Visual style of a form. Can also be registered app-wide with `ThemeData(extensions: [GSFormStyle(...)])`.
+class GSFormStyle extends ThemeExtension<GSFormStyle> {
   TextStyle titleTextStyle;
   TextStyle fieldHintStyle;
   TextStyle fieldTextStyle;
@@ -19,6 +58,12 @@ class GSFormStyle {
   double sectionCardElevation;
   double sectionCardPadding;
   String requiredText;
+  Color errorColor;
+  Color successColor;
+  GSFormLabels labels;
+
+  /// Sections narrower than this use each field's `compactWeight`.
+  double compactBreakpoint;
 
   GSFormStyle({
     TextStyle? titleStyle,
@@ -36,7 +81,15 @@ class GSFormStyle {
     TextStyle? helpTextStyle,
     String? requiredText,
     TextStyle? sectionTitleStyle,
-  }) : backgroundSectionColor = backgroundSectionColor ?? GSFormColors.white,
+    Color? errorColor,
+    Color? successColor,
+    GSFormLabels? labels,
+    double? compactBreakpoint,
+  }) : compactBreakpoint = compactBreakpoint ?? 600,
+       errorColor = errorColor ?? GSFormColors.red,
+       successColor = successColor ?? GSFormColors.green,
+       labels = labels ?? const GSFormLabels(),
+       backgroundSectionColor = backgroundSectionColor ?? GSFormColors.white,
        backgroundFieldColor = backgroundFieldColor ?? GSFormColors.colorBackground,
        backgroundFieldColorDisable = backgroundFieldColorDisable ?? GSFormColors.colorBackgroundDisable,
        titleTextStyle = titleStyle ?? GSFormTheme.textThemeStyle.displayMedium!,
@@ -51,6 +104,101 @@ class GSFormStyle {
        helpTextStyle = helpTextStyle ?? GSFormTheme.textThemeStyle.headlineMedium!,
        sectionTitleStyle = sectionTitleStyle ?? GSFormTheme.textThemeStyle.displayLarge!,
        fieldBorderColor = fieldBorderColor ?? GSFormColors.white;
+
+  /// Derives a style from the app's [ColorScheme] and [TextTheme].
+  factory GSFormStyle.fromTheme(ThemeData theme, {bool multiSection = false}) {
+    final c = theme.colorScheme;
+    final t = theme.textTheme;
+    return GSFormStyle(
+      titleStyle: t.labelLarge?.copyWith(color: c.onSurface),
+      fieldTextStyle: t.bodyLarge?.copyWith(color: c.onSurface),
+      fieldHintStyle: t.bodyLarge?.copyWith(color: c.onSurfaceVariant),
+      errorTextStyle: t.bodySmall?.copyWith(color: c.error),
+      helpTextStyle: t.bodySmall?.copyWith(color: c.onSurfaceVariant),
+      sectionTitleStyle: t.titleMedium?.copyWith(color: c.onSurface),
+      backgroundFieldColor: c.surfaceContainerHighest,
+      backgroundFieldColorDisable: c.onSurface.withValues(alpha: 0.12),
+      backgroundSectionColor: multiSection ? c.surfaceContainerLow : Colors.transparent,
+      fieldBorderColor: c.outlineVariant,
+      errorColor: c.error,
+      successColor: GSFormColors.green,
+      sectionCardElevation: multiSection ? 1.0 : 0.0,
+      sectionCardPadding: multiSection ? 8.0 : 0.0,
+      fieldRadius: 8,
+      sectionRadius: 8,
+    );
+  }
+
+  @override
+  GSFormStyle copyWith({
+    TextStyle? titleStyle,
+    Color? backgroundFieldColor,
+    Color? backgroundSectionColor,
+    Color? fieldBorderColor,
+    Color? backgroundFieldColorDisable,
+    double? fieldRadius,
+    double? sectionRadius,
+    double? sectionCardElevation,
+    double? sectionCardPadding,
+    TextStyle? fieldHintStyle,
+    TextStyle? fieldTextStyle,
+    TextStyle? errorTextStyle,
+    TextStyle? helpTextStyle,
+    String? requiredText,
+    TextStyle? sectionTitleStyle,
+    Color? errorColor,
+    Color? successColor,
+    GSFormLabels? labels,
+    double? compactBreakpoint,
+  }) {
+    return GSFormStyle(
+      titleStyle: titleStyle ?? titleTextStyle,
+      backgroundFieldColor: backgroundFieldColor ?? this.backgroundFieldColor,
+      backgroundSectionColor: backgroundSectionColor ?? this.backgroundSectionColor,
+      fieldBorderColor: fieldBorderColor ?? this.fieldBorderColor,
+      backgroundFieldColorDisable: backgroundFieldColorDisable ?? this.backgroundFieldColorDisable,
+      fieldRadius: fieldRadius ?? this.fieldRadius,
+      sectionRadius: sectionRadius ?? this.sectionRadius,
+      sectionCardElevation: sectionCardElevation ?? this.sectionCardElevation,
+      sectionCardPadding: sectionCardPadding ?? this.sectionCardPadding,
+      fieldHintStyle: fieldHintStyle ?? this.fieldHintStyle,
+      fieldTextStyle: fieldTextStyle ?? this.fieldTextStyle,
+      errorTextStyle: errorTextStyle ?? this.errorTextStyle,
+      helpTextStyle: helpTextStyle ?? this.helpTextStyle,
+      requiredText: requiredText ?? this.requiredText,
+      sectionTitleStyle: sectionTitleStyle ?? this.sectionTitleStyle,
+      errorColor: errorColor ?? this.errorColor,
+      successColor: successColor ?? this.successColor,
+      labels: labels ?? this.labels,
+      compactBreakpoint: compactBreakpoint ?? this.compactBreakpoint,
+    );
+  }
+
+  @override
+  GSFormStyle lerp(covariant GSFormStyle? other, double t) {
+    if (other == null) return this;
+    return GSFormStyle(
+      titleStyle: TextStyle.lerp(titleTextStyle, other.titleTextStyle, t),
+      backgroundFieldColor: Color.lerp(backgroundFieldColor, other.backgroundFieldColor, t),
+      backgroundSectionColor: Color.lerp(backgroundSectionColor, other.backgroundSectionColor, t),
+      fieldBorderColor: Color.lerp(fieldBorderColor, other.fieldBorderColor, t),
+      backgroundFieldColorDisable: Color.lerp(backgroundFieldColorDisable, other.backgroundFieldColorDisable, t),
+      fieldRadius: lerpDouble(fieldRadius, other.fieldRadius, t),
+      sectionRadius: lerpDouble(sectionRadius, other.sectionRadius, t),
+      sectionCardElevation: lerpDouble(sectionCardElevation, other.sectionCardElevation, t),
+      sectionCardPadding: lerpDouble(sectionCardPadding, other.sectionCardPadding, t),
+      fieldHintStyle: TextStyle.lerp(fieldHintStyle, other.fieldHintStyle, t),
+      fieldTextStyle: TextStyle.lerp(fieldTextStyle, other.fieldTextStyle, t),
+      errorTextStyle: TextStyle.lerp(errorTextStyle, other.errorTextStyle, t),
+      helpTextStyle: TextStyle.lerp(helpTextStyle, other.helpTextStyle, t),
+      requiredText: t < 0.5 ? requiredText : other.requiredText,
+      sectionTitleStyle: TextStyle.lerp(sectionTitleStyle, other.sectionTitleStyle, t),
+      errorColor: Color.lerp(errorColor, other.errorColor, t),
+      successColor: Color.lerp(successColor, other.successColor, t),
+      labels: t < 0.5 ? labels : other.labels,
+      compactBreakpoint: lerpDouble(compactBreakpoint, other.compactBreakpoint, t),
+    );
+  }
 
   static GSFormStyle singleSectionFormDefaultStyle = GSFormStyle(
     backgroundFieldColor: GSFormColors.white,

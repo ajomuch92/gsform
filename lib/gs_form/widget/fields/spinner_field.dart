@@ -35,6 +35,19 @@ class GSSpinnerField extends StatefulWidget implements GSFieldCallBack {
       return true;
     }
   }
+
+  /// Accepts a [SpinnerDataModel], its `id`, or `null` (shows the hint or first item).
+  @override
+  void setValue(dynamic value) {
+    final id = value is SpinnerDataModel ? value.id : value as int?;
+    for (final e in model.items) {
+      e.isSelected = e.id == id;
+    }
+    returnedData = model.items.where((e) => e.id == id).firstOrNull;
+  }
+
+  @override
+  void reset() => setValue(model.value);
 }
 
 class _GSSpinnerFieldState extends State<GSSpinnerField> {
@@ -52,8 +65,13 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
   void initState() {
     super.initState();
     _ensureHint();
+    final initial = widget.model.value as SpinnerDataModel? ?? _find((e) => e.isSelected ?? false);
+    widget.model.value ??= initial; // remembered for reset()
     // With a hint and nothing pre-selected the hint is shown, so `required` can fail.
-    widget.returnedData = _find((e) => e.isSelected ?? false) ?? widget.model.items.firstOrNull;
+    widget.returnedData =
+        _find((e) => e.id == widget.returnedData?.id) ??
+        _find((e) => e.id == initial?.id) ??
+        widget.model.items.firstOrNull;
   }
 
   @override
@@ -102,6 +120,7 @@ class _GSSpinnerFieldState extends State<GSSpinnerField> {
                 }
                 widget.model.onChange?.call(value);
                 setState(() => widget.returnedData = value);
+                widget.model.notifyChanged(value);
               }
             },
           ),

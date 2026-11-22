@@ -1,6 +1,6 @@
 name: gsform_plus
 description: Build Flutter forms without the boilerplate. Ready-made fields, layout by weight, validation and value collection in one place. Maintained continuation of gsform.
-version: 1.0.0
+version: 1.1.0
 homepage: https://github.com/ajomuch92/gsform
 repository: https://github.com/ajomuch92/gsform
 issue_tracker: https://github.com/ajomuch92/gsform/issues

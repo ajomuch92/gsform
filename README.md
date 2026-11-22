@@ -30,11 +30,21 @@ See real examples:
 <!-- Use for instance <https://github.com/ekalinin/github-markdown-toc>: -->
 
 >   * [Installation](#installation)
+>   * [Working with the form](#working-with-the-form)
+>   	* [Controller](#controller)
+>   	* [Validation](#validation)
+>   	* [Reacting to changes](#reacting-to-changes)
+>   	* [Conditional fields](#conditional-fields)
+>   	* [Async validation](#async-validation)
+>   	* [Multi-step forms](#multi-step-forms)
+>   	* [Responsive layout](#responsive-layout)
+>   	* [Theming and translations](#theming-and-translations)
+>   	* [More fields](#more-fields)
 >   * [Theme](#theme)
 >   	* [Style](#style)
 >   	* [Dark Support](#dark-support)
 >   	* [Direction](#direction)
->   	* [Required Show Types](#required-show-types)
+>   	* [Required Marker](#required-marker)
 <!-- >   * [Features](#features) -->
 >   * [Fields](#fields)
 >   * [Attributes](#attributes)
@@ -49,6 +59,12 @@ See real examples:
 >   	* [Email](#email)
 >   	* [Password](#password)
 >   	* [Price](#price)
+>   	* [Masked](#masked)
+>   	* [PinCode](#pincode)
+>   	* [Toggle](#toggle)
+>   	* [Slider](#slider)
+>   	* [Autocomplete](#autocomplete)
+>   	* [Custom](#custom)
 <!-- >   	* [BankCard](#bankcard) -->
 >
 >
@@ -78,7 +94,7 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 
 ```
 dependencies:
-  gsform_plus: ^1.0.0
+  gsform_plus: ^1.1.0
 ```
 
 Then import everything from one place:
@@ -110,8 +126,160 @@ Only needed if you use the image picker or QR scanner fields.
 * QR scanner now uses `mobile_scanner` (the old `qr_code_scanner` is discontinued).
 * The time field shows the time in the device's format (e.g. `3:05 PM`) and has no default hint.
 
-Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn
-more about it.
+## Working with the form
+
+Runs on Android, iOS, web, macOS, Windows and Linux (the QR scanner needs a camera-capable platform).
+
+### Controller
+
+`GSFormController` reads and writes values from outside the widget tree, validates, resets and enables/disables fields.
+
+```dart
+final controller = GSFormController(initialValues: {'name': 'Ana'});
+
+GSForm.singleSection(context, controller: controller, fields: [
+  GSField.text(tag: 'name', title: 'Name'),
+  GSField.email(tag: 'email', title: 'Email'),
+]);
+
+controller.values;                    // {'name': 'Ana', 'email': ''}
+controller.setValue('email', 'a@b.co');
+controller.setValues({'name': 'Luis', 'email': 'l@b.co'});
+controller.setEnabled('email', false); // disabled fields skip validation
+controller.isValid();                 // validates and scrolls to the first invalid field
+controller.reset();                   // back to initialValues / each field's initial value
+controller.addListener(() => print(controller.values)); // fires on every change
+```
+
+`setValue` takes the same type the field returns (`String` for text fields, `DateTime`, `DateTimeRange`,
+`TimeOfDay`, `bool`, `double`/`RangeValues`, image path(s)). Spinner and autocomplete also accept an item `id`;
+radio and checklist accept the item's `data`. `null` clears a field.
+
+Without a controller, keep the `GSForm` instance and call `form.isValid()` / `form.onSubmit()` as before.
+
+### Validation
+
+Besides `required` and `validateRegEx`, every field takes a `validator` that returns an error message (or `null`):
+
+```dart
+GSField.password(
+  tag: 'confirm',
+  title: 'Confirm password',
+  validator: (value) => value == controller.getValue('password') ? null : 'Passwords differ',
+)
+```
+
+`isValid()` scrolls to the first invalid field (pass `revealError: false` to skip that). A field showing an error is
+re-validated as the user fixes it; set `autovalidateMode: AutovalidateMode.onUserInteraction` on the form to validate
+every field while typing.
+
+### Reacting to changes
+
+```dart
+GSForm.singleSection(
+  context,
+  onChanged: (tag, value) => print('$tag changed to $value'), // any field
+  fields: [
+    GSField.text(tag: 'name', onChanged: (value) => print(value)), // one field
+  ],
+);
+```
+
+`onChanged` fires on user edits, not on `controller.setValue`.
+
+### Conditional fields
+
+`visibleWhen` receives the current values (by tag) and decides whether the field is part of the form:
+
+```dart
+GSField.toggle(tag: 'business', hint: 'Business account'),
+GSField.text(
+  tag: 'company',
+  title: 'Company name',
+  required: true,
+  visibleWhen: (values) => values['business'] == true,
+),
+```
+
+Hidden fields are not validated, are left out of `onSubmit()` / `controller.values`, and start again from their
+initial value when shown.
+
+### Async validation
+
+For checks that need a server, add an `asyncValidator`. It runs after the sync checks pass, when you call
+`isValidAsync()` (on the form or the controller) and on the stepper buttons; a small spinner shows while it runs.
+
+```dart
+GSField.text(
+  tag: 'username',
+  asyncValidator: (value) async => await api.isTaken(value) ? 'Username taken' : null,
+)
+
+if (await controller.isValidAsync()) save(controller.values);
+```
+
+`isValid()` stays synchronous and ignores async validators.
+
+### Multi-step forms
+
+`GSForm.stepper` shows one section per step with Back/Next buttons and a progress bar. Next validates only the
+current step; steps keep their values while hidden; the last step calls `onComplete` with every value.
+
+```dart
+GSForm.stepper(
+  context,
+  onComplete: (values) => save(values),
+  onStepChanged: (step) => debugPrint('step $step'),
+  sections: [
+    GSSection(sectionTitle: 'Account', fields: [GSField.email(tag: 'email', required: true)]),
+    GSSection(sectionTitle: 'Profile', fields: [GSField.text(tag: 'name')]),
+  ],
+)
+```
+
+Button texts come from `GSFormStyle.labels` (`next`, `back`, `submit`).
+
+### Responsive layout
+
+Each row holds up to 12 weight units; a field that does not fit starts a new row. Use `compactWeight` for narrow
+layouts (sections under `GSFormStyle.compactBreakpoint`, 600 by default):
+
+```dart
+GSField.text(tag: 'first', weight: 6, compactWeight: 12), // side by side on tablets, stacked on phones
+GSField.text(tag: 'last', weight: 6, compactWeight: 12),
+```
+
+### Theming and translations
+
+Register a style once for the whole app, or derive one from your `ThemeData`:
+
+```dart
+MaterialApp(
+  theme: ThemeData(
+    extensions: [GSFormStyle.fromTheme(ThemeData.light())],
+  ),
+);
+```
+
+A `style:` passed to `GSForm` still wins. `GSFormStyle` also carries `errorColor`, `successColor` and the built-in texts
+(`labels`): English by default, `GSFormLabels.es` for Spanish, or your own `GSFormLabels(...)`.
+
+### More fields
+
+```dart
+GSField.masked(tag: 'phone', mask: '(###) ###-####')  // # digit, A letter, * either
+GSField.pinCode(tag: 'otp', length: 6)                 // one box per digit, SMS autofill
+GSField.toggle(tag: 'terms', hint: 'I accept the terms', required: true) // must be on
+GSField.slider(tag: 'age', min: 18, max: 99, divisions: 81)
+GSField.slider(tag: 'price', min: 0, max: 1000, isRange: true) // RangeValues
+GSField.autocomplete(tag: 'city', items: [SpinnerDataModel(name: 'Lima', id: 1)])
+GSField.custom(
+  tag: 'rating',
+  builder: (context, value, onChanged) => Slider(value: value ?? 0.0, onChanged: onChanged),
+)
+```
+
+`GSMaskFormatter` is exported too, if you need a mask in your own `TextField`.
 
 ## Style
 
@@ -123,7 +291,7 @@ more about it.
 GSFormStyle(
 	backgroundFieldColor: COLOR,
 	backgroundSectionColor: COLOR,
-	sectionCardElevation: 0
+	sectionCardElevation: 0,
 	titleStyle: TextStyle,
 	fieldHintStyle: TextStyle,
 	fieldTextStyle: TextStyle,
@@ -131,10 +299,16 @@ GSFormStyle(
 	errorTextStyle: TextStyle,
 	fieldRadius: double,
 	helpTextStyle:TextStyle ,
-	requireType: GSFieldRequireTypeEnum, //text, star
 	sectionCardPadding: 8.0,
-	requiredText: '(required)'
+	requiredText: '(required)',
+	errorColor: COLOR,
+	successColor: COLOR,
+	labels: GSFormLabels.es, // built-in texts: From/To, Camera/Gallery, QR scanner title, Next/Back/Submit
+	compactBreakpoint: 600, // below this section width, fields use compactWeight
 )
+
+// Or derive everything from your app theme:
+GSFormStyle.fromTheme(Theme.of(context))
 
 ```
 
@@ -144,7 +318,8 @@ GSFormStyle(
  </table>
 
 ## Dark Support
-As we all now Dark theme is trending and most of the popular app has the feature to turn into the dark mode, we support Dark theme in GSForm if you did'nt user custom Style in components, otherwise you should handle this yourself.
+When no style is given (neither `style:` nor a `GSFormStyle` theme extension), GSForm picks its built-in light or dark
+style from the app's brightness. With a custom style, handle dark mode yourself, e.g. with `GSFormStyle.fromTheme`.
 
 <p align="center">
 <img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/darksupport.png?raw=true" alt="alternatetext"  height="450">
@@ -154,8 +329,9 @@ As we all now Dark theme is trending and most of the popular app has the feature
 ## Direction
 Some languages of the world (Arabic, Hebrew etc.) are RTL, meaning they are read right-to-left, instead of left-to-right. GSForm Support RTL Direction !
 
-## Required Show Types
-You can set type of required show in form with GSFieldRequireTypeEnum (text Or star) 
+## Required Marker
+Required fields show `GSFormStyle.requiredText` next to their title (empty by default), e.g. `requiredText: '*'` or
+`requiredText: '(required)'`. It is drawn in `errorColor`.
 
 ## Fields
 
@@ -544,7 +720,7 @@ features of each field will be explained in detail below.
     <td><code> String </code></td>
     <td> - </td>
     <td><code> false </code></td>
-    <td>this is the hint that shown in component</td>
+    <td>message shown below the field when it is invalid</td>
   </tr>
     <tr>
     <td>helpMessage</td>
@@ -584,9 +760,9 @@ features of each field will be explained in detail below.
     <tr>
     <td>status</td>
     <td><code> GSFieldStatusEnum </code></td>
-    <td><code>  normal, success, error </code></td>
+    <td><code>  normal, success, error, disabled </code></td>
     <td><code> false </code></td>
-    <td>this boolean is for make title above of component visible or inVisible</td>
+    <td>initial status of the field; <code>disabled</code> makes it read-only and skips validation</td>
   </tr>
      <tr>
     <td>validateRegEx</td>
@@ -601,6 +777,95 @@ features of each field will be explained in detail below.
     <td> - </td>
     <td><code> false </code></td>
     <td>you can set weight for widget and max is 12 in each line</td>
+  </tr>
+  <tr>
+    <td>validator</td>
+    <td><code> String? Function(dynamic value) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>runs after <code>required</code>/<code>validateRegEx</code>; return an error message to show, or <code>null</code> when valid</td>
+  </tr>
+  <tr>
+    <td>onChanged</td>
+    <td><code> ValueChanged&lt;dynamic&gt; </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>called with the new value when the user changes the field</td>
+  </tr>
+  <tr>
+    <td>asyncValidator</td>
+    <td><code> Future&lt;String?&gt; Function(dynamic value) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>async check (e.g. against a server) run by <code>isValidAsync()</code> and the stepper after the sync checks pass</td>
+  </tr>
+  <tr>
+    <td>visibleWhen</td>
+    <td><code> bool Function(Map&lt;String, dynamic&gt; values) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>the field is only part of the form while this returns true; hidden fields are not validated or submitted</td>
+  </tr>
+  <tr>
+    <td>compactWeight</td>
+    <td><code> int </code></td>
+    <td> 1 - 12 </td>
+    <td><code> false </code></td>
+    <td>weight used when the section is narrower than <code>GSFormStyle.compactBreakpoint</code></td>
+  </tr>
+</table>
+
+Form-level options (on <code>GSForm.singleSection</code> / <code>GSForm.multiSection</code> / <code>GSForm.stepper</code>):
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>controller</td>
+    <td><code> GSFormController </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>read/write values, validate, reset and enable/disable fields from outside the tree</td>
+  </tr>
+  <tr>
+    <td>autovalidateMode</td>
+    <td><code> AutovalidateMode </code></td>
+    <td> disabled, onUserInteraction, always </td>
+    <td><code> false </code></td>
+    <td>validate fields while the user edits them (default <code>disabled</code>)</td>
+  </tr>
+  <tr>
+    <td>onChanged</td>
+    <td><code> void Function(String tag, dynamic value) </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>called when any field changes</td>
+  </tr>
+  <tr>
+    <td>style</td>
+    <td><code> GSFormStyle </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>overrides the theme extension and the built-in light/dark styles</td>
+  </tr>
+  <tr>
+    <td>onComplete</td>
+    <td><code> ValueChanged&lt;Map&lt;String, dynamic&gt;&gt; </code></td>
+    <td> - </td>
+    <td><code> stepper only, true </code></td>
+    <td>called with every value when the last step is submitted and valid</td>
+  </tr>
+  <tr>
+    <td>onStepChanged</td>
+    <td><code> ValueChanged&lt;int&gt; </code></td>
+    <td> - </td>
+    <td><code> stepper only, false </code></td>
+    <td>called with the new step index</td>
   </tr>
 </table>
 
@@ -881,7 +1146,7 @@ features of each field will be explained in detail below.
     <td><code> String </code></td>
     <td> - </td>
     <td><code> false </code></td>
-    <td>From text in return selected date</td>
+    <td>label before the start date; defaults to <code>GSFormStyle.labels.from</code></td>
   </tr>
 
   <tr>
@@ -889,7 +1154,7 @@ features of each field will be explained in detail below.
     <td><code> String </code></td>
     <td> - </td>
     <td><code> false </code></td>
-    <td>To text in return selected date</td>
+    <td>label before the end date; defaults to <code>GSFormStyle.labels.to</code></td>
   </tr>
 </table>
 
@@ -909,6 +1174,230 @@ features of each field will be explained in detail below.
     <td> - </td>
     <td><code> false </code></td>
     <td>initial time of calendar</td>
+  </tr>
+</table>
+
+## Masked
+
+Value: the text as shown, literals included (e.g. `(555) 123-4567`). `required` needs the mask complete unless `validateRegEx` is set.
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>mask</td>
+    <td><code> String </code></td>
+    <td> <code>#</code> digit, <code>A</code> letter, <code>*</code> either; anything else is a literal </td>
+    <td><code> true </code></td>
+    <td>e.g. <code>(###) ###-####</code>, <code>AA-####</code>. Literals must not be digits or letters</td>
+  </tr>
+  <tr>
+    <td>hint</td>
+    <td><code> String </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>placeholder; defaults to the mask</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> String </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial value (raw or already masked)</td>
+  </tr>
+  <tr>
+    <td>keyboardType</td>
+    <td><code> TextInputType </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>keyboard to show</td>
+  </tr>
+  <tr>
+    <td>readOnly</td>
+    <td><code> bool </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>disable editing</td>
+  </tr>
+</table>
+
+## PinCode
+
+Value: the entered digits as a `String`. Supports paste and SMS one-time-code autofill.
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>length</td>
+    <td><code> int </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>number of digits (default 6); <code>required</code> needs all of them</td>
+  </tr>
+  <tr>
+    <td>obscure</td>
+    <td><code> bool </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>show dots instead of digits</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> String </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial value</td>
+  </tr>
+</table>
+
+## Toggle
+
+Value: `bool`. With `required: true` it must be on (e.g. accepting terms).
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>hint</td>
+    <td><code> String </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>label next to the switch</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> bool </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial state (default off)</td>
+  </tr>
+</table>
+
+## Slider
+
+Value: `double`, or `RangeValues` when `isRange` is true. Always valid.
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>min</td>
+    <td><code> double </code></td>
+    <td> - </td>
+    <td><code> true </code></td>
+    <td>lowest value</td>
+  </tr>
+  <tr>
+    <td>max</td>
+    <td><code> double </code></td>
+    <td> - </td>
+    <td><code> true </code></td>
+    <td>highest value</td>
+  </tr>
+  <tr>
+    <td>divisions</td>
+    <td><code> int </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>number of discrete steps; also shows a value label while dragging</td>
+  </tr>
+  <tr>
+    <td>isRange</td>
+    <td><code> bool </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>pick a range instead of a single value</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> double / RangeValues </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial value (defaults to <code>min</code> / the full range)</td>
+  </tr>
+</table>
+
+## Autocomplete
+
+Value: the picked `SpinnerDataModel`. Typing alone is not a value; the user has to choose a suggestion.
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>items</td>
+    <td><code> List&lt;SpinnerDataModel&gt; </code></td>
+    <td> - </td>
+    <td><code> true </code></td>
+    <td>suggestions, matched by name (case-insensitive, contains)</td>
+  </tr>
+  <tr>
+    <td>hint</td>
+    <td><code> String </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>placeholder</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> SpinnerDataModel </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial selection</td>
+  </tr>
+</table>
+
+## Custom
+
+Value: whatever your builder reports. `required` fails on `null`, empty strings and empty collections.
+
+<table>
+  <tr>
+    <td>Attribute</td>
+    <td>Type</td>
+    <td>Values</td>
+    <td>Required</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>builder</td>
+    <td><code> Widget Function(BuildContext, dynamic value, ValueChanged&lt;dynamic&gt; onChanged) </code></td>
+    <td> - </td>
+    <td><code> true </code></td>
+    <td>builds the input; call <code>onChanged</code> with the new value</td>
+  </tr>
+  <tr>
+    <td>value</td>
+    <td><code> dynamic </code></td>
+    <td> - </td>
+    <td><code> false </code></td>
+    <td>initial value</td>
   </tr>
 </table>
 

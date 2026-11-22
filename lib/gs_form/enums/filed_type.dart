@@ -18,4 +18,8 @@ enum GSFieldTypeEnum {
   imagePicker,
   qrScanner,
   multiImagePicker,
+  toggle,
+  slider,
+  autocomplete,
+  custom,
 }

@@ -34,6 +34,22 @@ class GSRadioGroupField extends StatefulWidget implements GSFieldCallBack {
       return returnedData != null;
     }
   }
+
+  /// Accepts a [RadioDataModel] (matched by title), an item's `data`, or `null`.
+  @override
+  void setValue(dynamic value) {
+    returnedData = null;
+    for (final e in model.items) {
+      e.isSelected = returnedData == null && value != null && _matches(e, value);
+      if (e.isSelected) returnedData = e;
+    }
+  }
+
+  @override
+  void reset() => setValue(model.value);
+
+  bool _matches(RadioDataModel item, dynamic v) =>
+      v is RadioDataModel ? identical(item, v) || item.title == v.title : item.data == v;
 }
 
 class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
@@ -47,6 +63,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
         widget.returnedData = element;
       }
     }
+    widget.model.value ??= widget.returnedData; // remembered for reset()
 
     super.initState();
   }
@@ -149,6 +166,7 @@ class _GSRadioGroupFieldState extends State<GSRadioGroupField> {
                       widget.model.callBack(widget.filteredItems[index]);
                       widget.returnedData = widget.filteredItems[index];
                       setState(() => {});
+                      widget.model.notifyChanged(widget.returnedData);
                     },
                     customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
                     child: Padding(
