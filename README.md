@@ -4,7 +4,7 @@
 </br>
 </br>
 <p align="center">
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/gsform_logo.png?raw=true" width="300" height="100">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/gsform_logo.png?raw=true" width="300" height="100">
 
 </br>
 
@@ -16,11 +16,11 @@ Also included are common ready-made form input fields for GSForm. This gives you
 adding common ready-made input fields instead of creating your own FormBuilderField from scratch.
 <!--* Project status: working -->
 
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/header.jpg?raw=true">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/header.jpg?raw=true">
 
 See real examples:
 
-* <https://github.com/ajomuch92/gsform/tree/main/example>
+* <https://github.com/ajomuch92/gsform_plus/tree/main/example>
 
 > **gsform_plus** is a maintained continuation of [gsform](https://pub.dev/packages/gsform) by Golrang System.
 > Coming from `gsform`? See [Migrating from gsform](#migrating-from-gsform).
@@ -312,7 +312,7 @@ GSFormStyle.fromTheme(Theme.of(context))
 
 ```
 
-<td><img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/style.png?raw=true" alt="alternatetext" width="250" height="450">
+<td><img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/style.png?raw=true" alt="alternatetext" width="250" height="450">
 	  </td>
   </tr>
  </table>
@@ -322,7 +322,7 @@ When no style is given (neither `style:` nor a `GSFormStyle` theme extension), G
 style from the app's brightness. With a custom style, handle dark mode yourself, e.g. with `GSFormStyle.fromTheme`.
 
 <p align="center">
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/darksupport.png?raw=true" alt="alternatetext"  height="450">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/darksupport.png?raw=true" alt="alternatetext"  height="450">
 </br>
 </p>
 
@@ -367,7 +367,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/text.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/text.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -397,7 +397,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/text_plain.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/text_plain.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -422,7 +422,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/number.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/number.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -452,7 +452,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/spinner.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/spinner.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -482,7 +482,7 @@ GSField.text(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/date.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/date.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -515,7 +515,7 @@ GSField.dateRangePicker(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/range_date.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/range_date.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -542,7 +542,7 @@ GSField.time(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/time.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/time.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -571,7 +571,7 @@ GSField.mobile(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/mobile.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/mobile.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -600,7 +600,7 @@ GSField.email(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/email.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/email.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -627,7 +627,7 @@ GSField.password(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/password.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/password.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -655,7 +655,7 @@ GSField.price(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/price.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/price.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -682,7 +682,7 @@ GSField.bankCard(
 
 </td>
 <td>
-<img src="https://github.com/ajomuch92/gsform/blob/main/screenshot/card.png?raw=true" alt="alternatetext" width="150" height="270">
+<img src="https://github.com/ajomuch92/gsform_plus/blob/main/screenshot/card.png?raw=true" alt="alternatetext" width="150" height="270">
 </td>
 </tr>
 
@@ -1428,8 +1428,8 @@ Originally created by [Golrang System](https://github.com/golrangsystem/gsform) 
 maintained continuation; see [CHANGELOG.md](CHANGELOG.md) for what changed.
 
 ## Contributors
-<a href="https://github.com/ajomuch92/gsform/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=ajomuch92/gsform" />
+<a href="https://github.com/ajomuch92/gsform_plus/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ajomuch92/gsform_plus" />
 </a>
 
 ## License
